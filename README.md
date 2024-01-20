@@ -4,5 +4,6 @@ Fleetware is an innovative fleet management and route optimization tool designed
 
 
 <div style="display: flex; justify-content: center;">
-  <img src="/assets/logo.png" alt="FleetWare homepage" style="height: 500px; width: 700px"/>
+  <img src="/assets/logo.png" alt="Logo" style="height: 400px; width: 400px"/>
+  <img src="/assets/homepage.png" alt="Homepage" style="height: 400px; width: 400px"/>
 </div>
