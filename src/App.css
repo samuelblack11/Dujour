@@ -3,16 +3,37 @@ body {
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
+    display: block; /* Changed from flex to block */
+    min-height: 100vh;
+}
+
+.header-container {
     display: flex;
+    flex-direction: row;
+    align-items: center;
     justify-content: center;
-    align-items: flex-start; /* Align to the top */
-    min-height: 100vh; /* Use min-height instead of height */
+    padding: 10px;
+}
+
+.logo {
+}
+
+.title {
+    font-size: 110px; /* Adjust this based on the appearance */
+    line-height: 128px; /* Sets the line height to match the logo height */
+    margin: 0;
+    color: white;
+    text-shadow: 2px 2px 4px rgba(25, 25, 112, 0.5);
+    display: flex;
+    align-items: center; /* Centers text vertically */
+    justify-content: center;
+    margin-top: -15px;
 }
 
 .container {
     width: 80%;
     max-width: 600px;
-    margin: 40px auto; /* Added top margin */
+    margin: 40px auto;
 }
 
 .button-grid {
@@ -45,27 +66,29 @@ body {
 }
 
 .App {
-    position: relative;
-    z-index: 1; 
     background-color: #f0f2f5;
     text-align: center;
-    padding: 20px 0;
-    /* Remove the height stretching */
-    height: auto;
-    /* Align items to the top */
-    align-items: flex-start;
+    padding: 10px;
+    min-height: 100vh;
+    width: 100%; /* Set width to 100% */
+    margin: 0 auto;
 }
+
+.route-background {
+  background-color: #393E5E;
+}
+
 
 .logo {
     max-width: 250px;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .title {
     font-size: 42px;
     color: white;
     text-shadow: 2px 2px 4px rgba(25, 25, 112, 0.5); /* x-offset, y-offset, blur-radius, color */
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 #background-video {
@@ -75,4 +98,13 @@ body {
   min-width: 100%;
   min-height: 100%;
   z-index: -1; /* Send the video to the background */
+}
+
+/* Add styles for full-page route containers */
+.route-container {
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+    /* Max width can be adjusted to suit your layout */
+    max-width: 900px; 
 }

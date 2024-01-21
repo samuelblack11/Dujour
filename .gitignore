@@ -2,6 +2,7 @@
 
 inputData.xlsx
 /server/config.js
+/public/backgroundVideos
 
 # dependencies
 /node_modules
