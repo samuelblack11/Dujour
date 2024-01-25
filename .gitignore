@@ -3,6 +3,7 @@
 inputData.xlsx
 /server/config.js
 /public/backgroundVideos
+startupCheatSheet.txt
 
 # dependencies
 /node_modules

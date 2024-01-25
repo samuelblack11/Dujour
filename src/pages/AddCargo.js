@@ -2,6 +2,16 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './AddCargo.css';
 
+const Popup = ({ message, onClose }) => (
+  <div className="popup">
+    <div className="popup-inner">
+      <p>{message}</p>
+      <button onClick={onClose}>OK</button>
+    </div>
+  </div>
+);
+
+
 const AddCargo = () => {
   const [formData, setFormData] = useState({
     customerName: '',
@@ -15,10 +25,13 @@ const AddCargo = () => {
     cargoValue: '',
     pickupAddress: '',
     deliveryAddress: '',
-    deliveryDate: ''
+    deliveryDate: '',
+    deliveryStatus: 'pendingPickup'
   });
 
   const [validationErrors, setValidationErrors] = useState({});
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
 
 
   const handleChange = (e) => {
@@ -64,12 +77,23 @@ const AddCargo = () => {
     try {
       const response = await axios.post('/api/cargo', formData);
       console.log(response.data);
-      // Handle response or set a success message
+      setPopupMessage('Cargo data saved successfully!');
+      setShowPopup(true);
     } catch (error) {
       console.error('Error submitting form', error);
-      // Handle error or set an error message
+      setPopupMessage('Error saving data. Please try again.');
+      setShowPopup(true);
     }
   };
+
+  const handleCurrencyChange = (e) => {
+  const { value } = e.target;
+  const numericValue = value.replace(/[^0-9.]/g, ''); // Remove non-numeric characters
+  setFormData({
+    ...formData,
+    cargoValue: numericValue
+  });
+};
 
   return (
     <div className="add-cargo-container">
@@ -93,7 +117,7 @@ const AddCargo = () => {
           </div>
 
         <div className="form-group">
-          <label htmlFor="cargoLength">Cargo Length:</label>
+          <label htmlFor="cargoLength">Cargo Length (ft):</label>
           <input 
             type="number" 
             id="cargoLength" 
@@ -105,7 +129,7 @@ const AddCargo = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="cargoWidth">Cargo Width:</label>
+          <label htmlFor="cargoWidth">Cargo Width (ft):</label>
           <input 
             type="number" 
             id="cargoWidth" 
@@ -117,7 +141,7 @@ const AddCargo = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="cargoHeight">Cargo Height:</label>
+          <label htmlFor="cargoHeight">Cargo Height (ft):</label>
           <input 
             type="number" 
             id="cargoHeight" 
@@ -129,7 +153,7 @@ const AddCargo = () => {
         </div>
 
         <div className="form-group">
-          <label htmlFor="cargoWeight">Cargo Weight:</label>
+          <label htmlFor="cargoWeight">Cargo Weight (lbs):</label>
           <input 
             type="number" 
             id="cargoWeight" 
@@ -143,9 +167,17 @@ const AddCargo = () => {
         <div className="form-group">
           <label htmlFor="cargoCategory">Cargo Category:</label>
           <select id="cargoCategory" name="cargoCategory" value={formData.cargoCategory} onChange={handleChange}>
-            <option value="option1">Option 1</option>
-            <option value="option2">Option 2</option>
-            <option value="option3">Option 3</option>
+            <option value="option1"></option>
+            <option value="Agricultural">Agricultural</option>
+            <option value="Chemicals">Chemicals</option>
+            <option value="Construction">Construction Materials</option>
+            <option value="CPG">Consumer Packaged Goods</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Livestock">Livestock</option>
+            <option value="Oil&Gas">Oil & Gas</option>
+            <option value="Pharmaceuticals">Pharmaceuticals</option>
+            <option value="RefreigeratedGoods">Refreigerated Goods</option>
+            <option value="Textiles&Apparel">Textiles & Apparel</option>
           </select>
         </div>
 
@@ -159,16 +191,19 @@ const AddCargo = () => {
         
         <div className="form-group">
           <label htmlFor="cargoValue">Cargo Approximate Value:</label>
-          <input 
-            type="number" 
-            id="cargoValue" 
-            name="cargoValue" 
-            value={formData.cargoValue} 
-            onChange={handleChange} 
-            required 
-            className={validationErrors.cargoValue ? 'error' : ''}/>
+          <div className="currency-input-container">
+            <span className="currency-symbol">$</span>
+            <input 
+             type="text" // Changed to text to handle custom formatting
+             id="cargoValue" 
+             name="cargoValue" 
+             value={formData.cargoValue} 
+             onChange={handleCurrencyChange}
+             required 
+             className={validationErrors.cargoValue ? 'error' : ''}
+           />
+          </div>
         </div>
-
         <div className="form-group">
           <label htmlFor="pickupAddress">Pickup Address:</label>
           <input type="text" id="pickupAddress" name="pickupAddress" value={formData.pickupAddress} onChange={handleChange} required />
@@ -187,6 +222,18 @@ const AddCargo = () => {
         <button type="submit">Submit</button>
         </div>
       </form>
+      {showPopup && (
+      <Popup
+        message={popupMessage}
+        onClose={() => {
+          setShowPopup(false);
+          if (popupMessage === 'Cargo data saved successfully!') {
+            // Redirect to the homepage if the operation was successful
+            window.location.href = '/';
+          }
+        }}
+      />
+    )}
     </div>
   );
 };

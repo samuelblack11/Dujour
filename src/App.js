@@ -6,7 +6,7 @@ import DashboardOverview from './pages/DashboardOverview';
 import FleetTracking from './pages/FleetTracking';
 import AnalyticsReporting from './pages/AnalyticsReporting';
 import AddCargo from './pages/AddCargo';
-import UnfulfilledCargo from './pages/SettingsSupport';
+import UnfulfilledCargo from './pages/UnfulfilledCargo';
 import LoadOptimization from './pages/LoadOptimization';
 import RouteOptimization from './pages/RouteOptimization';
 import DriverManagement from './pages/DriverManagement';
@@ -69,6 +69,7 @@ function App() {
           <Route path="/driver-management" element={<DriverManagement />} />
           <Route path="/maintenance-scheduling" element={<MaintenanceScheduling />} />
           <Route path="/settings-support" element={<SettingsSupport />} />
+          <Route path="/unfulfilled-cargo" element={<UnfulfilledCargo />} />
         </Routes>
       </div>
     </Router>
