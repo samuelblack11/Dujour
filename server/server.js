@@ -4,8 +4,8 @@ const port = process.env.PORT || 3001; // Change 3001 to your preferred port
 const mongoose = require('mongoose');
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/cargo', { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB...'))
+mongoose.connect('mongodb://localhost:27017/fleetware', { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('Connected to fleetware database...'))
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
 const cargoSchema = new mongoose.Schema({
@@ -24,7 +24,7 @@ const cargoSchema = new mongoose.Schema({
   deliveryStatus: String,
 });
 
-const Cargo = mongoose.model('Cargo', cargoSchema);
+const Cargo = mongoose.model('Cargo', cargoSchema, 'cargo');
 
 // Middleware to handle JSON requests
 app.use(express.json()); // Middleware to parse JSON bodies
