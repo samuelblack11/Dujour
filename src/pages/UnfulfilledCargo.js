@@ -5,6 +5,21 @@ import './UnfulfilledCargo.css';
 
 const EditPopup = ({ cargo, onClose, onSave }) => {
   const [editData, setEditData] = useState({ ...cargo });
+  const [cargoCategories, setCargoCategories] = useState([]);
+
+  // Fetch Cargo Categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get('/api/cargoCategories');
+        setCargoCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching cargo categories", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     console.log("EditPopup receiving cargo:", cargo);
@@ -31,15 +46,27 @@ const formFieldsConfig = [
   { label: 'Cargo Width', name: 'cargoWidth', type: 'number' },
   { label: 'Cargo Height', name: 'cargoHeight', type: 'number' },
   { label: 'Cargo Weight', name: 'cargoWeight', type: 'number' },
-  { label: 'Cargo Category', name: 'cargoCategory', type: 'text' },
-  { label: 'Cargo Hazardous', name: 'cargoHazardous', type: 'select', options: ['false', 'true'] },
+    {
+      label: 'Cargo Category',
+      name: 'cargoCategory',
+      type: 'select',
+      options: cargoCategories.map(category => ({ value: category.key, label: category.value }))
+    },
+    {
+    label: 'Cargo Hazardous',
+    name: 'cargoHazardous',
+    type: 'select',
+    options: [
+      { value: 'false', label: 'False' },
+      { value: 'true', label: 'True' }
+    ]
+  },
   { label: 'Cargo Value', name: 'cargoValue', type: 'number' },
   { label: 'Pickup Address', name: 'pickupAddress', type: 'text' },
   { label: 'Delivery Address', name: 'deliveryAddress', type: 'text' },
   { label: 'Delivery Date', name: 'deliveryDate', type: 'date' },
   { label: 'Delivery Status', name: 'deliveryStatus', type: 'text' },
 ];
-
 
   return (
     <>
@@ -49,7 +76,7 @@ const formFieldsConfig = [
           {field.type === 'select' ? (
             <select name={field.name} value={editData[field.name] || ''} onChange={handleChange}>
               {field.options.map((option) => (
-                <option key={option} value={option}>{option}</option>
+                <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
           ) : (
@@ -58,7 +85,8 @@ const formFieldsConfig = [
         </div>
       ))}
       <button className="popup-ok-btn" onClick={handleSaveClick}>OK</button>
-    </>  );
+    </>
+  );
 };
 
 const UnfulfilledCargo = () => {

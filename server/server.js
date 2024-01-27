@@ -26,6 +26,13 @@ const cargoSchema = new mongoose.Schema({
 
 const Cargo = mongoose.model('Cargo', cargoSchema, 'cargo');
 
+const cargoCategorySchema = new mongoose.Schema({
+  key: String,
+  value: String
+});
+const CargoCategories = mongoose.model('CargoCategories', cargoCategorySchema, 'cargoCategories');
+
+
 // Middleware to handle JSON requests
 app.use(express.json()); // Middleware to parse JSON bodies
 
@@ -52,6 +59,17 @@ app.put('/api/cargo/:id', async (req, res) => {
     res.status(500).send('Error updating cargo');
   }
 });
+
+
+app.get('/api/cargoCategories', async (req, res) => {
+  try {
+    const categories = await CargoCategories.find();
+    res.json(categories);
+  } catch (error) {
+    res.status(500).send("Error retrieving cargo categories");
+  }
+});
+
 
 // Fetch all cargo entries
 app.get('/api/cargo', async (req, res) => {

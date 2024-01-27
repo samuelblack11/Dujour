@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AddCargo.css';
 
@@ -32,6 +32,22 @@ const AddCargo = () => {
   const [validationErrors, setValidationErrors] = useState({});
   const [showPopup, setShowPopup] = useState(false);
   const [popupMessage, setPopupMessage] = useState('');
+  const [cargoCategories, setCargoCategories] = useState([]);
+
+  useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get('/api/cargoCategories');
+      setCargoCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching cargo categories", error);
+    }
+  };
+
+
+  fetchCategories();
+}, []);
+
 
 
   const handleChange = (e) => {
@@ -167,18 +183,11 @@ const AddCargo = () => {
         <div className="form-group">
           <label htmlFor="cargoCategory">Cargo Category:</label>
           <select id="cargoCategory" name="cargoCategory" value={formData.cargoCategory} onChange={handleChange}>
-            <option value="option1"></option>
-            <option value="Agricultural">Agricultural</option>
-            <option value="Chemicals">Chemicals</option>
-            <option value="Construction">Construction Materials</option>
-            <option value="CPG">Consumer Packaged Goods</option>
-            <option value="Electronics">Electronics</option>
-            <option value="Livestock">Livestock</option>
-            <option value="Oil&Gas">Oil & Gas</option>
-            <option value="Pharmaceuticals">Pharmaceuticals</option>
-            <option value="RefreigeratedGoods">Refreigerated Goods</option>
-            <option value="Textiles&Apparel">Textiles & Apparel</option>
-          </select>
+          <option value="">Select a Category</option>
+          {cargoCategories.map(category => (
+          <option key={category.key} value={category.key}>{category.value}</option>
+          ))}
+        </select>
         </div>
 
         <div className="form-group">
