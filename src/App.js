@@ -9,7 +9,7 @@ import AddCargo from './pages/AddCargo';
 import UnfulfilledCargo from './pages/UnfulfilledCargo';
 import LoadOptimization from './pages/LoadOptimization';
 import RouteOptimization from './pages/RouteOptimization';
-import DriverManagement from './pages/DriverManagement';
+import DriverAndVehicleManagement from './pages/DriverAndVehicleManagement';
 import MaintenanceScheduling from './pages/MaintenanceScheduling';
 import SettingsSupport from './pages/SettingsSupport';
 
@@ -24,7 +24,7 @@ function ButtonGrid() {
         <Link to="/unfulfilled-cargo"><button className="dashboard-button">Unfulfilled Cargo</button></Link>
         <Link to="/load-optimization"><button className="dashboard-button">Load Optimization</button></Link>
         <Link to="/route-optimization"><button className="dashboard-button">Route Optimization</button></Link>
-        <Link to="/driver-management"><button className="dashboard-button">Driver Management</button></Link>
+        <Link to="/driver-vehicle-management"><button className="dashboard-button">Driver & Vehicle Management</button></Link>
         <Link to="/maintenance-scheduling"><button className="dashboard-button">Maintenance Scheduling</button></Link>
         <Link to="/settings-support"><button className="dashboard-button">Settings & Support</button></Link>
       </div>
@@ -66,7 +66,7 @@ function App() {
           <Route path="/unfulfilled-cargo" element={<UnfulfilledCargo />} />
           <Route path="/load-optimization" element={<LoadOptimization />} />
           <Route path="/route-optimization" element={<RouteOptimization />} />
-          <Route path="/driver-management" element={<DriverManagement />} />
+          <Route path="/driver-vehicle-management" element={<DriverAndVehicleManagement />} />
           <Route path="/maintenance-scheduling" element={<MaintenanceScheduling />} />
           <Route path="/settings-support" element={<SettingsSupport />} />
           <Route path="/unfulfilled-cargo" element={<UnfulfilledCargo />} />

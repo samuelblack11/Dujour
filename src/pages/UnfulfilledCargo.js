@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { GenericTable, GenericPopup } from './ReusableReactComponents';
 import './UnfulfilledCargo.css';
 
 const EditPopup = ({ cargo, onClose, onSave }) => {
   const [editData, setEditData] = useState({ ...cargo });
+
+  useEffect(() => {
+    console.log("EditPopup receiving cargo:", cargo);
+    setEditData({ ...cargo });
+  }, [cargo]);
 
   const handleChange = (e) => {
     setEditData({ ...editData, [e.target.name]: e.target.value });
@@ -17,56 +23,42 @@ const EditPopup = ({ cargo, onClose, onSave }) => {
       console.error('Error updating cargo:', error);
     }
   };
+
+const formFieldsConfig = [
+  { label: 'Customer Name', name: 'customerName', type: 'text' },
+  { label: 'Customer Email', name: 'customerEmail', type: 'email' },
+  { label: 'Cargo Length', name: 'cargoLength', type: 'number' },
+  { label: 'Cargo Width', name: 'cargoWidth', type: 'number' },
+  { label: 'Cargo Height', name: 'cargoHeight', type: 'number' },
+  { label: 'Cargo Weight', name: 'cargoWeight', type: 'number' },
+  { label: 'Cargo Category', name: 'cargoCategory', type: 'text' },
+  { label: 'Cargo Hazardous', name: 'cargoHazardous', type: 'select', options: ['false', 'true'] },
+  { label: 'Cargo Value', name: 'cargoValue', type: 'number' },
+  { label: 'Pickup Address', name: 'pickupAddress', type: 'text' },
+  { label: 'Delivery Address', name: 'deliveryAddress', type: 'text' },
+  { label: 'Delivery Date', name: 'deliveryDate', type: 'date' },
+  { label: 'Delivery Status', name: 'deliveryStatus', type: 'text' },
+];
+
+
   return (
-    <div className="popup">
-      <div className="popup-inner">
-        <label>Customer Name:</label>
-        <input type="text" name="customerName" value={editData.customerName} onChange={handleChange} />
-
-        <label>Customer Email:</label>
-        <input type="email" name="customerEmail" value={editData.customerEmail} onChange={handleChange} />
-
-        <label>Cargo Length:</label>
-        <input type="number" name="cargoLength" value={editData.cargoLength} onChange={handleChange} />
-
-        <label>Cargo Width:</label>
-        <input type="number" name="cargoWidth" value={editData.cargoWidth} onChange={handleChange} />
-
-        <label>Cargo Height:</label>
-        <input type="number" name="cargoHeight" value={editData.cargoHeight} onChange={handleChange} />
-
-        <label>Cargo Weight:</label>
-        <input type="number" name="cargoWeight" value={editData.cargoWeight} onChange={handleChange} />
-
-        <label>Cargo Category:</label>
-        <input type="text" name="cargoCategory" value={editData.cargoCategory} onChange={handleChange} />
-
-        <label>Cargo Hazardous:</label>
-        <select name="cargoHazardous" value={editData.cargoHazardous} onChange={handleChange}>
-          <option value="false">No</option>
-          <option value="true">Yes</option>
-        </select>
-
-        <label>Cargo Value:</label>
-        <input type="number" name="cargoValue" value={editData.cargoValue} onChange={handleChange} />
-
-        <label>Pickup Address:</label>
-        <input type="text" name="pickupAddress" value={editData.pickupAddress} onChange={handleChange} />
-
-        <label>Delivery Address:</label>
-        <input type="text" name="deliveryAddress" value={editData.deliveryAddress} onChange={handleChange} />
-
-        <label>Delivery Date:</label>
-        <input type="date" name="deliveryDate" value={editData.deliveryDate} onChange={handleChange} />
-
-        <label>Delivery Status:</label>
-        <input type="text" name="deliveryStatus" value={editData.deliveryStatus} onChange={handleChange} />
-
-        <button className="popup-ok-btn" onClick={handleSaveClick}>OK</button>
-        <button className="popup-cancel-btn" onClick={onClose}>Cancel</button>
-      </div>
-    </div>
-  );
+    <>
+      {formFieldsConfig.map((field) => (
+        <div key={field.name}>
+          <label>{field.label}:</label>
+          {field.type === 'select' ? (
+            <select name={field.name} value={editData[field.name] || ''} onChange={handleChange}>
+              {field.options.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          ) : (
+            <input type={field.type} name={field.name} value={editData[field.name] || ''} onChange={handleChange} />
+          )}
+        </div>
+      ))}
+      <button className="popup-ok-btn" onClick={handleSaveClick}>OK</button>
+    </>  );
 };
 
 const UnfulfilledCargo = () => {
@@ -75,6 +67,7 @@ const UnfulfilledCargo = () => {
   const [currentEditCargo, setCurrentEditCargo] = useState(null);
 
   const handleEditClick = (cargo) => {
+    console.log("Selected cargo for edit:", cargo);
     setCurrentEditCargo(cargo);
     setShowEditPopup(true);
   };
@@ -106,63 +99,62 @@ const UnfulfilledCargo = () => {
     }
   };
 
+  const columns = [
+  { Header: 'Customer Name', accessor: 'customerName' },
+  { Header: 'Email', accessor: 'customerEmail' },
+  { Header: 'Cargo Length', accessor: 'cargoLength' },
+  { Header: 'Cargo Width', accessor: 'cargoWidth' },
+  { Header: 'Cargo Height', accessor: 'cargoHeight' },
+  { Header: 'Cargo Value', accessor: 'cargoValue' },
+  { Header: 'Cargo Category', accessor: 'cargoCategory' },
+  { Header: 'Cargo Hazardous', accessor: 'cargoHazardous' },
+  { Header: 'Pickup Address', accessor: 'pickupAddress' },
+  { Header: 'Delivery Address', accessor: 'deliveryAddress' },
+  { Header: 'Delivery Date', accessor: 'deliveryDate' },
+  { Header: 'Delivery Status', accessor: 'deliveryStatus' },
+  {
+    Header: 'Update',
+    accessor: 'update',
+    Cell: ({ row }) => {
+      console.log("Complete Row:", row);
+      return (
+        <button onClick={() => {
+          console.log("Row data in table:", row); // Debug log
+          handleEditClick(row);
+        }}>
+          Update
+        </button>
+      );
+    }
+  },
+  {
+    Header: 'Delete',
+    accessor: 'delete',
+    Cell: ({ row }) => (
+      <button onClick={() => deleteCargo(row.original._id)}>
+        🗑️
+      </button>
+    )
+  }
+];
+
+console.log("Cargo List:", cargoList);
   return (
     <div>
       <h2>Unfulfilled Cargo</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Customer Name</th>
-            <th>Email</th>
-            <th>Cargo Length</th>
-            <th>Cargo Width</th>
-            <th>Cargo Height</th>
-            <th>Cargo Value</th>
-            <th>Cargo Category</th>
-            <th>Cargo Hazardous</th>
-            <th>Pickup Address</th>
-            <th>Delivery Address</th>
-            <th>Delivery Date</th>
-            <th>Delivery Status</th>
-            <th>Update</th>
-            <th>Delete</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cargoList.map((cargo) => (
-            <tr key={cargo._id}>
-              <td>{cargo.customerName}</td>
-              <td>{cargo.customerEmail}</td>
-              <td>{cargo.cargoLength}</td>
-              <td>{cargo.cargoWidth}</td>
-              <td>{cargo.cargoHeight}</td>
-              <td>{cargo.cargoValue}</td>
-              <td>{cargo.cargoCategory}</td>
-              <td>{cargo.cargoHazardous}</td>
-              <td>{cargo.pickupAddress}</td>
-              <td>{cargo.deliveryAddress}</td>
-              <td>{cargo.deliveryDate}</td>
-              <td>{cargo.deliveryStatus}</td>
-              <td>
-                <button onClick={() => handleEditClick(cargo)}>
-                  Update
-                </button>
-              </td>
-              <td>
-                <button onClick={() => deleteCargo(cargo._id)}>
-                  🗑️
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <GenericTable 
+      data={cargoList}
+      columns={columns} 
+      handleEditClick={handleEditClick} 
+      deleteCargo={deleteCargo}
+      />
       {showEditPopup && (
-        <EditPopup
-          cargo={currentEditCargo}
-          onClose={() => setShowEditPopup(false)}
-          onSave={handleSaveEdit}
-        />
+        <GenericPopup show={showEditPopup} onClose={() => setShowEditPopup(false)}>
+          <EditPopup
+            cargo={currentEditCargo}
+            onSave={handleSaveEdit}
+          />
+        </GenericPopup>
       )}
     </div>
   );
