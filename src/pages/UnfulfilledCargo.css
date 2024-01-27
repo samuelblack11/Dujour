@@ -35,6 +35,8 @@ tr:nth-child(even) {
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
   width: 80%;
   max-width: 500px; /* Adjust width as needed */
+  max-height: 80vh; /* You can adjust this value as needed */
+  overflow-y: auto; /* This will enable scrolling for overflow content */
 }
 
 .popup-inner label {

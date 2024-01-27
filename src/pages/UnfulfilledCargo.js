@@ -134,6 +134,7 @@ const UnfulfilledCargo = () => {
   { Header: 'Cargo Width', accessor: 'cargoWidth' },
   { Header: 'Cargo Height', accessor: 'cargoHeight' },
   { Header: 'Cargo Value', accessor: 'cargoValue' },
+  { Header: 'Cargo Weight', accessor: 'cargoWeight' },
   { Header: 'Cargo Category', accessor: 'cargoCategory' },
   { Header: 'Cargo Hazardous', accessor: 'cargoHazardous' },
   { Header: 'Pickup Address', accessor: 'pickupAddress' },
@@ -159,7 +160,7 @@ const UnfulfilledCargo = () => {
     Header: 'Delete',
     accessor: 'delete',
     Cell: ({ row }) => (
-      <button onClick={() => deleteCargo(row.original._id)}>
+      <button onClick={() => deleteCargo(row._id)}>
         🗑️
       </button>
     )
