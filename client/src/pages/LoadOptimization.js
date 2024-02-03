@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './LoadOptimization.css';
+import './AllPages.css';
 
 const LoadOptimization = () => {
 const [drivers, setDrivers] = useState([]);

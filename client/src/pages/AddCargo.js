@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './AddCargo.css';
+import './AllPages.css';
 
 const Popup = ({ message, onClose }) => (
   <div className="popup">
@@ -111,139 +111,93 @@ const AddCargo = () => {
   });
 };
 
-  return (
-    <div className="add-cargo-container">
-      <h2 className="add-cargo-header">Add Cargo</h2>
-      <form id="addCargoForm" className="add-cargo-form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="customerName">Customer Name:</label>
-          <input type="text" id="customerName" name="customerName" value={formData.customerName} onChange={handleChange} required />
-        </div>
+// Example of a useForm custom hook
+function useForm(initialValues) {
+  const [formData, setFormData] = useState(initialValues);
+  // Include validation logic and other form-related operations here
+  return [formData, setFormData];
+}
 
-        <div className="form-group">
-          <label htmlFor="customerEmail">Customer Email:</label>
-          <input 
-            type="email" 
-            id="customerEmail" 
-            name="customerEmail" 
-            value={formData.customerEmail} 
-            onChange={handleChange} 
-            required 
-            className={validationErrors.customerEmail ? 'error' : ''}/>        
-          </div>
+const fields = [
+  { id: "customerName", label: "Customer Name", type: "text", validationError: "customerName" },
+  { id: "customerEmail", label: "Customer Email", type: "email", validationError: "customerEmail" },
+  { id: "cargoLength", label: "Cargo Length (ft)", type: "number", validationError: "cargoLength" },
+  { id: "cargoWidth", label: "Cargo Width (ft)", type: "number", validationError: "cargoWidth" },
+  { id: "cargoHeight", label: "Cargo Height (ft)", type: "number", validationError: "cargoHeight" },
+  { id: "cargoWeight", label: "Cargo Weight (lbs)", type: "number", validationError: "cargoWeight" },
+  { id: "cargoValue", label: "Cargo Approximate Value", type: "text", validationError: "cargoValue", isCurrency: true },
+  { id: "pickupAddress", label: "Pickup Address", type: "text", validationError: "pickupAddress" },
+  { id: "deliveryAddress", label: "Delivery Address", type: "text", validationError: "deliveryAddress" },
+  { id: "deliveryDate", label: "Deliver by Date", type: "date", validationError: "deliveryDate" },
+  { id: "cargoCategory", label: "Cargo Category", type: "select", validationError: "cargoCategory" },
+  { id: "cargoHazardous", label: "Cargo Hazardous Flag", type: "select", validationError: "cargoHazardous", options: [{value: false, label: "False"}, {value: true, label: "True"}] },
+];
 
-        <div className="form-group">
-          <label htmlFor="cargoLength">Cargo Length (ft):</label>
-          <input 
-            type="number" 
-            id="cargoLength" 
-            name="cargoLength" 
-            value={formData.cargoLength} 
-            onChange={handleChange} 
-            required 
-            className={validationErrors.cargoLength ? 'error' : ''}/>
+return (
+  <div className="add-cargo-container">
+    <h2 className="add-cargo-header">Add Cargo</h2>
+    <form id="addCargoForm" className="add-cargo-form" onSubmit={handleSubmit}>
+      {fields.map((field) => (
+        <div className="form-group" key={field.id}>
+          <label htmlFor={field.id}>{field.label}:</label>
+          {field.type === "select" ? (
+            <select
+              id={field.id}
+              name={field.id}
+              value={formData[field.id]}
+              onChange={handleChange}
+              required
+              className={validationErrors[field.validationError] ? 'error' : ''}
+            >
+              {field.id === "cargoHazardous" ? field.options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              )) : (
+                <>
+                  <option value="">Select a Category</option>
+                  {cargoCategories.map((category) => (
+                    <option key={category.key} value={category.key}>
+                      {category.value}
+                    </option>
+                  ))}
+                </>
+              )}
+            </select>
+          ) : (
+            <input
+              type={field.type}
+              id={field.id}
+              name={field.id}
+              value={formData[field.id]}
+              onChange={field.id === "cargoValue" ? handleCurrencyChange : handleChange}
+              required
+              className={validationErrors[field.validationError] ? 'error' : ''}
+            />
+          )}
+          {field.id === "cargoValue" && (
+            <div className="currency-input-container">
+              <span className="currency-symbol">$</span>
+            </div>
+          )}
         </div>
-
-        <div className="form-group">
-          <label htmlFor="cargoWidth">Cargo Width (ft):</label>
-          <input 
-            type="number" 
-            id="cargoWidth" 
-            name="cargoWidth" 
-            value={formData.cargoWidth} 
-            onChange={handleChange} 
-            required 
-            className={validationErrors.cargoWidth ? 'error' : ''}/>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="cargoHeight">Cargo Height (ft):</label>
-          <input 
-            type="number" 
-            id="cargoHeight" 
-            name="cargoHeight" 
-            value={formData.cargoHeight} 
-            onChange={handleChange} 
-            required 
-            className={validationErrors.cargoHeight ? 'error' : ''}/>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="cargoWeight">Cargo Weight (lbs):</label>
-          <input 
-            type="number" 
-            id="cargoWeight" 
-            name="cargoWeight" 
-            value={formData.cargoWeight} 
-            onChange={handleChange} 
-            required 
-            className={validationErrors.cargoWeight ? 'error' : ''}/>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="cargoCategory">Cargo Category:</label>
-          <select id="cargoCategory" name="cargoCategory" value={formData.cargoCategory} onChange={handleChange}>
-          <option value="">Select a Category</option>
-          {cargoCategories.map(category => (
-          <option key={category.key} value={category.key}>{category.value}</option>
-          ))}
-        </select>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="cargoHazardous">Cargo Hazardous Flag:</label>
-          <select id="cargoHazardous" name="cargoHazardous" value={formData.cargoHazardous} onChange={handleChange}>
-            <option value={false}>False</option>
-            <option value={true}>True</option>
-          </select>
-        </div>
-        
-        <div className="form-group">
-          <label htmlFor="cargoValue">Cargo Approximate Value:</label>
-          <div className="currency-input-container">
-            <span className="currency-symbol">$</span>
-            <input 
-             type="text" // Changed to text to handle custom formatting
-             id="cargoValue" 
-             name="cargoValue" 
-             value={formData.cargoValue} 
-             onChange={handleCurrencyChange}
-             required 
-             className={validationErrors.cargoValue ? 'error' : ''}
-           />
-          </div>
-        </div>
-        <div className="form-group">
-          <label htmlFor="pickupAddress">Pickup Address:</label>
-          <input type="text" id="pickupAddress" name="pickupAddress" value={formData.pickupAddress} onChange={handleChange} required />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="deliveryAddress">Delivery Address:</label>
-          <input type="text" id="deliveryAddress" name="deliveryAddress" value={formData.deliveryAddress} onChange={handleChange} required />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="deliveryDate">Deliver by Date:</label>
-          <input type="date" id="deliveryDate" name="deliveryDate" value={formData.deliveryDate} onChange={handleChange} required />
-        </div>
-        <div className="submitButton">
+      ))}
+      <div className="submitButton">
         <button type="submit">Submit</button>
-        </div>
-      </form>
-      {showPopup && (
+      </div>
+    </form>
+    {showPopup && (
       <Popup
         message={popupMessage}
         onClose={() => {
           setShowPopup(false);
           if (popupMessage === 'Cargo data saved successfully!') {
-            // Redirect to the homepage if the operation was successful
             window.location.href = '/';
           }
         }}
       />
     )}
-    </div>
+  </div>
   );
 };
 

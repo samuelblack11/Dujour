@@ -58,8 +58,8 @@ function App() {
           <h1 className="title">Fleetware</h1>
         </div>
         <Routes>
-      {/* This disable-next-line command prevents the escape character from creating distracting color coding in the file*/}
-        // eslint-disable-next-line
+          {/* This disable-next-line command prevents the escape character from creating distracting color coding*/}
+          // eslint-disable-next-line
           <Route path="/" element={<ButtonGrid />} />
           <Route path="/dashboard-overview" element={<DashboardOverview />} />
           <Route path="/fleet-tracking" element={<FleetTracking />} />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GenericTable, GenericPopup } from './ReusableReactComponents';
-import './UnfulfilledCargo.css';
+import './AllPages.css';
 
 const EditPopup = ({ cargo, onClose, onSave }) => {
   const [editData, setEditData] = useState({ ...cargo });
