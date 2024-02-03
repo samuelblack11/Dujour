@@ -1,0 +1,31 @@
+.load-optimization-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Three equal columns */
+  grid-template-rows: auto 1fr; /* Two rows: one for the header, one for the content */
+  gap: 20px;
+  padding: 20px;
+}
+
+.load-optimization-container > h2 {
+  grid-column: 1 / -1; /* Span from the first to the last column */
+  text-align: center;
+}
+
+
+
+.form-section {
+  grid-column: 1 / 2;
+  grid-row: 2;
+}
+
+.cargo-list-section {
+  grid-column: 2 / 3;
+  grid-row: 2;
+  overflow-y: auto;
+  max-height: 90vh;
+}
+
+.route-data-section {
+  grid-column: 3 / 4;
+  grid-row: 2;
+}
