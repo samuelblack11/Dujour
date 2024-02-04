@@ -115,6 +115,7 @@
 table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 th, td {
@@ -201,6 +202,7 @@ tr:nth-child(even) {
 .menu-management-container {
     display: flex;
     justify-content: space-between;
+    flex-direction: column;
     padding: 20px;
 }
 
@@ -214,17 +216,24 @@ tr:nth-child(even) {
 }
 
 .add-button {
-    display: flex;
-    align-items: center;
-    background-color: #C2B280; /* Muted harvest gold background */
-    color: white;
-    border: none;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
+    display: inline-flex; /* Use 'inline-flex' to keep buttons inline and allow center alignment of content */
+    align-items: center; /* Vertically center the content */
+    justify-content: center; /* Horizontally center the content */
+    background-color: rgba(128, 50, 50, 0.6); /* Initial background color */
+    color: white; /* Text color */
+    border: none; /* Remove border */
+    padding: 10px 30px; /* Vertical and horizontal padding */
+    margin-bottom: 10px; /* Margin at the bottom */
+    border-radius: 25px; /* Pill shape */
+    cursor: pointer; /* Pointer cursor on hover */
+    font-weight: bold; /* Bold text */
+    transition: background-color 0.3s; /* Smooth transition for background color change on hover */
 }
+
+.add-button:hover {
+    background-color: rgba(128, 50, 50, 0.8); /* Slightly darker on hover */
+}
+
 
 .add-button img {
     margin-right: 10px;
@@ -239,7 +248,7 @@ table {
 
 th, td {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 4px;
 }
 
 th {
@@ -264,6 +273,11 @@ button:hover {
     opacity: 0.8;
 }
 
+.button-group {
+  display: flex;
+  justify-content: center;
+}
+
 .edit-btn, .delete-btn {
     margin: 5px;
     padding: 5px 10px;
@@ -284,4 +298,6 @@ button:hover {
     opacity: 0.8;
 }
 
-
+.h3 {
+    color:  rgba(128, 50, 50, 0.6);
+}

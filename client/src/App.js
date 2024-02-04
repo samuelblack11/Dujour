@@ -6,23 +6,24 @@ import FleetTracking from './pages/FleetTracking';
 import AnalyticsReporting from './pages/AnalyticsReporting';
 import MenuManagement from './pages/MenuManagement';
 import BuildOrder from './pages/BuildOrder';
-import UnfulfilledCargo from './pages/UnfulfilledCargo';
-import LoadOptimization from './pages/LoadOptimization';
+import UnfulfilledOrders from './pages/UnfulfilledOrders';
+import RouteOptimization from './pages/RouteOptimization';
 import DriverManagement from './pages/DriverManagement';
 import SettingsSupport from './pages/SettingsSupport';
+
+//<Link to="/fleet-tracking"><button className="dashboard-button">Fleet Tracking</button></Link>
+//<Link to="/analytics-reporting"><button className="dashboard-button">Analytics & Reporting</button></Link>
+//<Link to="/settings-support"><button className="dashboard-button">Settings & Support</button></Link>
 
 function ButtonGrid() {
   return (
     <div className="container">
       <div className="button-grid">
-        <Link to="/fleet-tracking"><button className="dashboard-button">Fleet Tracking</button></Link>
-        <Link to="/analytics-reporting"><button className="dashboard-button">Analytics & Reporting</button></Link>
         <Link to="/menu-management"><button className="dashboard-button">Menu Management</button></Link>
         <Link to="/build-order"><button className="dashboard-button">Build Order</button></Link>
-        <Link to="/unfulfilled-cargo"><button className="dashboard-button">Unfulfilled Orders</button></Link>
-        <Link to="/load-optimization"><button className="dashboard-button">Load & Route Optimization</button></Link>
-        <Link to="/driver-vehicle-management"><button className="dashboard-button">Driver Management</button></Link>
-        <Link to="/settings-support"><button className="dashboard-button">Settings & Support</button></Link>
+        <Link to="/unfulfilled-orders"><button className="dashboard-button">Unfulfilled Orders</button></Link>
+        <Link to="/route-optimization"><button className="dashboard-button">Route Optimization</button></Link>
+        <Link to="/driver-management"><button className="dashboard-button">Driver Management</button></Link>
       </div>
     </div>
   );
@@ -51,6 +52,9 @@ function App() {
         <Link to="/">
           <img src={logo} className="logo" alt="Dujour Logo" />
         </Link>
+
+        <h2 class = "header-title">Dujour: A Farm to Consumer Concept</h2>
+
         </div>
         <Routes>
           {/* This disable-next-line command prevents the escape character from creating distracting color coding*/}
@@ -60,11 +64,10 @@ function App() {
           <Route path="/analytics-reporting" element={<AnalyticsReporting />} />
           <Route path="/menu-management" element={<MenuManagement />} />
           <Route path="/build-order" element={<BuildOrder />} />
-          <Route path="/unfulfilled-cargo" element={<UnfulfilledCargo />} />
-          <Route path="/load-optimization" element={<LoadOptimization />} />
+          <Route path="/unfulfilled-orders" element={<UnfulfilledOrders />} />
+          <Route path="/route-optimization" element={<RouteOptimization />} />
           <Route path="/driver-management" element={<DriverManagement />} />
           <Route path="/settings-support" element={<SettingsSupport />} />
-          <Route path="/unfulfilled-cargo" element={<UnfulfilledCargo />} />
         </Routes>
       </div>
     </Router>

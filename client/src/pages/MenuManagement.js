@@ -149,6 +149,31 @@ const MenuManagement = () => {
     const [currentItem, setCurrentItem] = useState(null); // null for adding, object for editing
     const [currentFarm, setCurrentFarm] = useState(null);
 
+    const columns = [
+  {
+    Header: 'Item Name',
+    accessor: 'itemName', // The key from the item data
+  },
+  {
+    Header: 'Farm',
+    Cell: ({ row }) => row.farm.name
+  },
+  {
+    Header: 'Quantity Available',
+    accessor: 'quantityAvailable',
+  },
+  {
+    Header: 'Actions',
+    accessor: 'actions',
+    Cell: ({ row }) => (
+      <>
+        <button onClick={() => handleAddEditItem(row)} className="edit-btn">Edit</button>
+        <button onClick={() => handleDeleteItem(row._id)} className="delete-btn">Delete</button>
+      </>
+    ),
+  }
+];
+
     useEffect(() => {
         fetchItems();
         fetchFarms();
@@ -157,6 +182,7 @@ const MenuManagement = () => {
     const fetchItems = async () => {
         try {
             const response = await axios.get('/api/items');
+            console.log("Fetched Items:", response.data); // Inspect the fetched data
             setItems(response.data);
         } catch (error) {
             console.error('Failed to fetch items:', error);
@@ -214,9 +240,10 @@ const MenuManagement = () => {
     };
     return (
         <div className="menu-management-container">
+        <div className="button-group">
             <button onClick={() => handleAddEditItem()} className="add-button">Add Menu Item</button>
             <button onClick={() => handleAddEditFarm()} className="add-button">Add Farm</button>
-            
+            </div>
             {showItemPopup && (
                 <GenericPopup show={showItemPopup} onClose={handleCloseItemPopup}>
                     <ItemForm item={currentItem} farms={farms} onSave={handleCloseItemPopup} />
@@ -230,32 +257,14 @@ const MenuManagement = () => {
             )}
 
             <div className="menu-items-table">
-                <h3>Menu Items</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Item Name</th>
-                            <th>Farm</th>
-                            <th>Quantity Available</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items.map(item => (
-                            <tr key={item._id}>
-                                <td>{item.itemName}</td>
-                                <td>{item.farm ? item.farm.name : 'N/A'}</td>
-                                <td>{item.quantityAvailable}</td>
-                                <td>
-                                    <button onClick={() => handleAddEditItem(item)} className="edit-btn">Edit</button>
-                                    <button onClick={() => handleDeleteItem(item._id)} className="delete-btn">Delete</button>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+            <h3>Menu Items</h3>
+            <GenericTable 
+                data={items} 
+                columns={columns} 
+                handleEditClick={handleAddEditItem} 
+                deleteCargo={handleDeleteItem} 
+                />
             </div>
-
         </div>
     );
 };
