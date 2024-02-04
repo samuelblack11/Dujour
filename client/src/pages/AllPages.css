@@ -338,14 +338,16 @@ button:hover {
 }
 
 .form-group label {
-  flex-basis: 40%; /* Adjust based on your layout needs */
-  text-align: left; /* Ensure label text is aligned to the left */
+  display: block;
+  margin-bottom: 5px; /* Space between label and input */
+  font-weight: bold;
 }
 
 .form-group input, .form-group select {
-  flex-basis: 58%; /* Adjust input/select width */
+  width: 100%; /* Full width */
   padding: 8px;
-  margin-left: 2%; /* Ensure some space between label and input */
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .total-cost {
@@ -388,3 +390,58 @@ button:hover {
   border-left: 2px solid #ccc; /* Adds a visual separation */
   margin-left: 20px; /* Ensures space between sections */
 }
+
+.input-quantity {
+  width: 80%; /* Adjust as needed */
+  max-width: 100px; /* Prevent it from becoming too wide */
+}
+
+.actions-cell {
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically */
+  align-items: center; /* Center buttons horizontally within the cell */
+  justify-content: center; /* Center buttons vertically, useful if the cell has more height */
+}
+
+
+.delete-btn {
+  background-color: #f44336; /* Red */
+}
+
+.order-info-section {
+  background-color: #C2B280; /* Light grey background */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Soft shadow for depth */
+  margin-bottom: 20px; /* Space between sections */
+}
+
+.form-group {
+  margin-bottom: 15px; /* Space between form groups */
+}
+
+.customer-info-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.customer-info-table td {
+  padding: 8px;
+  border: 1px solid #ddd; /* Light grey border */
+}
+
+.customer-info-table label {
+  margin-right: 10px;
+  font-weight: bold; /* Make labels bold */
+}
+
+.customer-info-table input[type="text"],
+.customer-info-table input[type="email"],
+.customer-info-table input[type="date"] {
+  width: 100%;
+  padding: 8px;
+  margin: 4px 0;
+  box-sizing: border-box; /* Make sure input does not overflow */
+}
+
+/* Add more styling here as needed */
