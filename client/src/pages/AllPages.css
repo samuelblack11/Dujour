@@ -197,3 +197,91 @@ tr:nth-child(even) {
 .popup-inner .popup-cancel-btn:hover {
   background-color: #bd2130;
 }
+
+.menu-management-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.control-panel {
+    flex: 1;
+    margin-right: 20px; /* Space between buttons and table */
+}
+
+.menu-items-table {
+    flex: 3;
+}
+
+.add-button {
+    display: flex;
+    align-items: center;
+    background-color: #C2B280; /* Muted harvest gold background */
+    color: white;
+    border: none;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.add-button img {
+    margin-right: 10px;
+    width: 20px; /* Adjust based on your icon size */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #FFF8DC; /* Creamy background for a farm aesthetic */
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+th {
+    background-color: #F4A460; /* Sandy brown for headers */
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+button {
+    margin-right: 5px;
+    background-color: #808080; /* Muted button color */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+.edit-btn, .delete-btn {
+    margin: 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.edit-btn {
+    background-color: #F4A460; /* Sandy brown for edit */
+}
+
+.delete-btn {
+    background-color: #dc3545; /* Bootstrap's danger color for delete */
+}
+
+.edit-btn:hover, .delete-btn:hover {
+    opacity: 0.8;
+}
+
+
