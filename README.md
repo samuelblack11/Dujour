@@ -1,9 +1,7 @@
-# FleetWare
+# Dujour (Previously Fleetware)
 
-Fleetware is an innovative fleet management and route optimization tool designed for the modern logistics industry. Utilizing cutting-edge MERN stack technology (MongoDB, Express.js, React.js, Node.js), Fleetware provides real-time tracking, efficient route planning, and comprehensive fleet analytics. The tool dynamically incorporates traffic, weather, and various logistical variables to optimize routes, ensuring timely deliveries and cost savings. Fleetware's user-friendly interface offers easy navigation and visualization of fleet operations, enhancing decision-making processes. The platform is scalable, catering to diverse business sizes, from small local fleets to large multinational logistics operations. Fleetware stands out for its integration of AI and machine learning, constantly evolving to meet the complex demands of modern transportation challenges. This project is not just a showcase of technical proficiency, but a testament to practical, impactful solutions in the logistics sector.
-
+Dujour is an innovative supply chain management tool designed to support the delivery of fresh produce from local farms directly to consumers. Utilizing MERN stack technology (MongoDB, Express.js, React.js, Node.js), Dujour is a comprehensive tool which manages each step of this process from order placement to delivery to consumer doorsteps. This includes inventory management and route planning features which allow for logistical optimiaztion. In the spirit of creating healthier and more connected local communities, Dujour aims to provide consumers with the freshest produce in your region.
 
 <div style="display: flex; justify-content: center;">
-  <img src="/assets/logo.png" alt="Logo" style="height: 400px; width: 400px"/>
-  <img src="/assets/homepage.png" alt="Homepage" style="height: 400px; width: 400px"/>
+  <img src="/client/public/homepage.png" alt="Homepage" style="height: 400px; width: 400px"/>
 </div>

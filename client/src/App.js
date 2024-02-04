@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, useLocation} from 'react-router-dom';
 import './App.css';
 import logo from './assets/logo128.png';
-import FleetTracking from './pages/FleetTracking';
+import OperationsOverview from './pages/OperationsOverview';
 import AnalyticsReporting from './pages/AnalyticsReporting';
 import MenuManagement from './pages/MenuManagement';
 import BuildOrder from './pages/BuildOrder';
@@ -19,11 +19,14 @@ function ButtonGrid() {
   return (
     <div className="container">
       <div className="button-grid">
+        <Link to="/operations-overview"><button className="dashboard-button">Operations Overview</button></Link>
+        <Link to="/analytics-reporting"><button className="dashboard-button">Analytics & Reporting</button></Link>
         <Link to="/menu-management"><button className="dashboard-button">Menu Management</button></Link>
         <Link to="/build-order"><button className="dashboard-button">Build Order</button></Link>
         <Link to="/unfulfilled-orders"><button className="dashboard-button">Unfulfilled Orders</button></Link>
         <Link to="/route-optimization"><button className="dashboard-button">Route Optimization</button></Link>
         <Link to="/driver-management"><button className="dashboard-button">Driver Management</button></Link>
+        <Link to="/settings-support"><button className="dashboard-button">Settings & Support</button></Link>
       </div>
     </div>
   );
@@ -60,7 +63,7 @@ function App() {
           {/* This disable-next-line command prevents the escape character from creating distracting color coding*/}
           // eslint-disable-next-line
           <Route path="/" element={<ButtonGrid />} />
-          <Route path="/fleet-tracking" element={<FleetTracking />} />
+          <Route path="/operations-overview" element={<OperationsOverview />} />
           <Route path="/analytics-reporting" element={<AnalyticsReporting />} />
           <Route path="/menu-management" element={<MenuManagement />} />
           <Route path="/build-order" element={<BuildOrder />} />
