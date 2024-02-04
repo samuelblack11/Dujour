@@ -298,6 +298,93 @@ button:hover {
     opacity: 0.8;
 }
 
-.h3 {
+.page-header {
     color:  rgba(128, 50, 50, 0.6);
+}
+
+.build-order-container {
+  display: flex; /* This will layout its children (left-sections and cart-summary) in a row */
+  justify-content: space-between; /* This spaces out the left sections and the order summary */
+  align-items: flex-start; /* Aligns items at the top */
+  margin: 20px;
+  max-width: 1200px;
+}
+
+.left-sections {
+  display: block; /* Default block layout stacks children vertically */
+  flex: 1; /* Allows this section to grow and fill available space */
+  margin-right: 20px; /* Adds some space between this section and the summary */
+}
+
+.order-info-section, .build-cart-section, .cart-summary {
+  flex: 1; /* Ensure equal width */
+  padding: 20px;
+}
+
+.order-info-section {
+  border-bottom: 2px solid #ccc; /* Horizontal line below this section */
+}
+
+.order-info-section, .build-cart-section {
+  padding: 20px;
+  margin-bottom: 20px; /* Adds bottom margin for spacing between sections */
+}
+
+.form-group {
+  display: flex;
+  align-items: center; /* Align items vertically */
+  justify-content: space-between; /* Space between label and input */
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  flex-basis: 40%; /* Adjust based on your layout needs */
+  text-align: left; /* Ensure label text is aligned to the left */
+}
+
+.form-group input, .form-group select {
+  flex-basis: 58%; /* Adjust input/select width */
+  padding: 8px;
+  margin-left: 2%; /* Ensure some space between label and input */
+}
+
+.total-cost {
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+.item-list {
+  list-style: none;
+  padding: 0;
+}
+
+.item-list li {
+  margin-bottom: 10px;
+}
+
+.submitButton {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  align-self: center;
+}
+
+.submitButton button {
+  padding: 10px 20px;
+  background-color: rgba(128, 50, 50, 0.5);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.submitButton button:hover {
+  background-color: rgba(128, 50, 50, 0.8);
+}
+
+.cart-summary {
+  width: calc(40% - 20px); /* Adjusts the width of the summary; subtract margin/padding as necessary */
+  padding: 20px;
+  border-left: 2px solid #ccc; /* Adds a visual separation */
+  margin-left: 20px; /* Ensures space between sections */
 }

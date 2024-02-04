@@ -49,7 +49,8 @@ app.post('/api/farms', async (req, res) => {
 const availableItemSchema = new mongoose.Schema({
   itemName: String,
   quantityAvailable: Number,
-  farm: { type: mongoose.Schema.Types.ObjectId, ref: 'Farm' }, // Reference to Farm model
+  unitCost: Number, // Adding unitCost to the schema
+  farm: { type: mongoose.Schema.Types.ObjectId, ref: 'Farm' },
 });
 
 
@@ -77,8 +78,6 @@ app.post('/api/items', async (req, res) => {
     res.status(500).send('Error saving item data with farm reference');
   }
 });
-
-
 
 app.put('/api/items/:id', async (req, res) => {
   console.log("Updating item with ID:", req.params.id);
@@ -108,17 +107,28 @@ app.delete('/api/items/:id', async (req, res) => {
     }
 });
 
-
 const orderSchema = new mongoose.Schema({
   customerName: String,
   customerEmail: String,
   deliveryAddress: String,
   deliveryDate: Date,
+  status: { type: String, default: 'draft' },
   items: [{
     itemName: String,
     quantity: Number,
-    pickupAddress: String, // Optional, depending on your design
+    pickupAddress: String,
+    unitCost: Number,
   }],
+  totalCost: { type: Number, default: 0 },
+});
+
+orderSchema.pre('save', function(next) {
+  let total = 0;
+  this.items.forEach(item => {
+    total += item.quantity * item.unitCost;
+  });
+  this.totalCost = total;
+  next();
 });
 
 const Order = mongoose.model('Order', orderSchema, 'orders');

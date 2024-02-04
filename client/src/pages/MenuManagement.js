@@ -9,6 +9,7 @@ const ItemForm = ({ item, onSave, farms }) => {
   // Initialize form state with item data if editing, or blank for adding
   const [formState, setFormState] = useState({
     itemName: item ? item.itemName : '',
+    unitCost: item ? item.unitCost : '',
     quantityAvailable: item ? item.quantityAvailable : '',
     farm: item && item.farm ? item.farm._id : ''
   });
@@ -47,7 +48,15 @@ const ItemForm = ({ item, onSave, farms }) => {
         onChange={handleChange}
         required
       />
-
+      <label htmlFor="unitCost">Unit Cost:</label>
+      <input
+        id="unitCost"
+        name="unitCost"
+        type="number"
+        value={formState.unitCost}
+        onChange={handleChange}
+        required
+      />
       <label htmlFor="quantityAvailable">Quantity Available:</label>
       <input
         id="quantityAvailable"
@@ -154,6 +163,10 @@ const MenuManagement = () => {
     Header: 'Item Name',
     accessor: 'itemName', // The key from the item data
   },
+    {
+    Header: 'Unit Cost',
+    accessor: 'unitCost', // The key from the item data
+  },
   {
     Header: 'Farm',
     Cell: ({ row }) => row.farm.name
@@ -240,6 +253,7 @@ const MenuManagement = () => {
     };
     return (
         <div className="menu-management-container">
+        <h3 class="page-header">Menu Management</h3>
         <div className="button-group">
             <button onClick={() => handleAddEditItem()} className="add-button">Add Menu Item</button>
             <button onClick={() => handleAddEditFarm()} className="add-button">Add Farm</button>
@@ -257,7 +271,7 @@ const MenuManagement = () => {
             )}
 
             <div className="menu-items-table">
-            <h3>Menu Items</h3>
+            <h3>Available Items</h3>
             <GenericTable 
                 data={items} 
                 columns={columns} 

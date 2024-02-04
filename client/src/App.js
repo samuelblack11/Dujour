@@ -11,7 +11,7 @@ import RouteOptimization from './pages/RouteOptimization';
 import DriverManagement from './pages/DriverManagement';
 import SettingsSupport from './pages/SettingsSupport';
 
-//<Link to="/fleet-tracking"><button className="dashboard-button">Fleet Tracking</button></Link>
+//<Link to="/operations-overview"><button className="dashboard-button">Operations Overview</button></Link>
 //<Link to="/analytics-reporting"><button className="dashboard-button">Analytics & Reporting</button></Link>
 //<Link to="/settings-support"><button className="dashboard-button">Settings & Support</button></Link>
 
@@ -19,14 +19,11 @@ function ButtonGrid() {
   return (
     <div className="container">
       <div className="button-grid">
-        <Link to="/operations-overview"><button className="dashboard-button">Operations Overview</button></Link>
-        <Link to="/analytics-reporting"><button className="dashboard-button">Analytics & Reporting</button></Link>
         <Link to="/menu-management"><button className="dashboard-button">Menu Management</button></Link>
         <Link to="/build-order"><button className="dashboard-button">Build Order</button></Link>
         <Link to="/unfulfilled-orders"><button className="dashboard-button">Unfulfilled Orders</button></Link>
         <Link to="/route-optimization"><button className="dashboard-button">Route Optimization</button></Link>
         <Link to="/driver-management"><button className="dashboard-button">Driver Management</button></Link>
-        <Link to="/settings-support"><button className="dashboard-button">Settings & Support</button></Link>
       </div>
     </div>
   );

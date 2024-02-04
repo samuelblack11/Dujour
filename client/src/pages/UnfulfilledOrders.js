@@ -3,190 +3,158 @@ import axios from 'axios';
 import { GenericTable, GenericPopup } from './ReusableReactComponents';
 import './AllPages.css';
 
-const EditPopup = ({ cargo, onClose, onSave }) => {
-  const [editData, setEditData] = useState({ ...cargo });
-  const [cargoCategories, setCargoCategories] = useState([]);
-
-  // Fetch Cargo Categories
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await axios.get('/api/cargoCategories');
-        setCargoCategories(response.data);
-      } catch (error) {
-        console.error("Error fetching cargo categories", error);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  useEffect(() => {
-    console.log("EditPopup receiving cargo:", cargo);
-    setEditData({ ...cargo });
-  }, [cargo]);
-
-  const handleChange = (e) => {
-    setEditData({ ...editData, [e.target.name]: e.target.value });
+const OrderForm = ({ order, onSave, onClose }) => {
+  const initialState = order || {
+    customerName: '',
+    customerEmail: '',
+    deliveryAddress: '',
+    deliveryDate: '',
+    items: [{ itemName: '', quantity: '', pickupAddress: '' }],
   };
 
-  const handleSaveClick = async () => {
-    try {
-      await axios.put(`/api/cargo/${editData._id}`, editData);
-      onSave(); // This will close the popup and refresh the list
-    } catch (error) {
-      console.error('Error updating cargo:', error);
+  const [orderData, setOrderData] = useState(initialState);
+
+  const handleChange = (e, index) => {
+    if (index !== undefined) {
+      // Handle change for items array
+      const updatedItems = orderData.items.map((item, i) => 
+        i === index ? { ...item, [e.target.name]: e.target.value } : item
+      );
+      setOrderData({ ...orderData, items: updatedItems });
+    } else {
+      // Handle change for other fields
+      setOrderData({ ...orderData, [e.target.name]: e.target.value });
     }
   };
 
-const formFieldsConfig = [
-  { label: 'Customer Name', name: 'customerName', type: 'text' },
-  { label: 'Customer Email', name: 'customerEmail', type: 'email' },
-  { label: 'Cargo Length', name: 'cargoLength', type: 'number' },
-  { label: 'Cargo Width', name: 'cargoWidth', type: 'number' },
-  { label: 'Cargo Height', name: 'cargoHeight', type: 'number' },
-  { label: 'Cargo Weight', name: 'cargoWeight', type: 'number' },
-    {
-      label: 'Cargo Category',
-      name: 'cargoCategory',
-      type: 'select',
-      options: cargoCategories.map(category => ({ value: category.key, label: category.value }))
-    },
-    {
-    label: 'Cargo Hazardous',
-    name: 'cargoHazardous',
-    type: 'select',
-    options: [
-      { value: 'false', label: 'False' },
-      { value: 'true', label: 'True' }
-    ]
-  },
-  { label: 'Cargo Value', name: 'cargoValue', type: 'number' },
-  { label: 'Pickup Address', name: 'pickupAddress', type: 'text' },
-  { label: 'Delivery Address', name: 'deliveryAddress', type: 'text' },
-  { label: 'Delivery Date', name: 'deliveryDate', type: 'date' },
-  { label: 'Delivery Status', name: 'deliveryStatus', type: 'text' },
-];
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const method = order ? 'put' : 'post';
+      const url = order ? `/api/orders/${order._id}` : '/api/orders';
+      await axios[method](url, orderData);
+      onSave(); // Close the popup and refresh the list
+    } catch (error) {
+      console.error('Error saving order:', error);
+    }
+  };
+
+  const addItemField = () => {
+    const newItem = { itemName: '', quantity: '', pickupAddress: '' };
+    setOrderData({ ...orderData, items: [...orderData.items, newItem] });
+  };
 
   return (
-    <>
-      {formFieldsConfig.map((field) => (
-        <div key={field.name}>
-          <label>{field.label}:</label>
-          {field.type === 'select' ? (
-            <select name={field.name} value={editData[field.name] || ''} onChange={handleChange}>
-              {field.options.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          ) : (
-            <input type={field.type} name={field.name} value={editData[field.name] || ''} onChange={handleChange} />
-          )}
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label>Customer Name:</label>
+        <input type="text" name="customerName" value={orderData.customerName} onChange={handleChange} />
+      </div>
+      <div>
+        <label>Customer Email:</label>
+        <input type="email" name="customerEmail" value={orderData.customerEmail} onChange={handleChange} />
+      </div>
+      <div>
+        <label>Delivery Address:</label>
+        <input type="text" name="deliveryAddress" value={orderData.deliveryAddress} onChange={handleChange} />
+      </div>
+      <div>
+        <label>Delivery Date:</label>
+        <input type="date" name="deliveryDate" value={orderData.deliveryDate} onChange={handleChange} />
+      </div>
+      {orderData.items.map((item, index) => (
+        <div key={index}>
+          <label>Item Name:</label>
+          <input type="text" name="itemName" value={item.itemName} onChange={(e) => handleChange(e, index)} />
+          <label>Quantity:</label>
+          <input type="number" name="quantity" value={item.quantity} onChange={(e) => handleChange(e, index)} />
+          <label>Pickup Address:</label>
+          <input type="text" name="pickupAddress" value={item.pickupAddress} onChange={(e) => handleChange(e, index)} />
         </div>
       ))}
-      <button className="popup-ok-btn" onClick={handleSaveClick}>OK</button>
-    </>
+      <button type="button" onClick={addItemField}>Add Item</button>
+      <button type="submit">Save Order</button>
+    </form>
   );
 };
 
-const UnfulfilledCargo = () => {
-  const [cargoList, setCargoList] = useState([]);
-  const [showEditPopup, setShowEditPopup] = useState(false);
-  const [currentEditCargo, setCurrentEditCargo] = useState(null);
 
-  const handleEditClick = (cargo) => {
-    console.log("Selected cargo for edit:", cargo);
-    setCurrentEditCargo(cargo);
-    setShowEditPopup(true);
-  };
 
-  const handleSaveEdit = () =>  {
-    setShowEditPopup(false);
-    fetchCargo();
-  };
+
+const UnfulfilledOrders = () => {
+  const [orders, setOrders] = useState([]);
+  const [showOrderPopup, setShowOrderPopup] = useState(false);
+  const [currentOrder, setCurrentOrder] = useState(null);
 
   useEffect(() => {
-    fetchCargo();
+    fetchOrders();
   }, []);
 
-  const fetchCargo = async () => {
+  const fetchOrders = async () => {
     try {
-      const response = await axios.get('/api/cargo');
-      setCargoList(response.data);
+      const response = await axios.get('/api/orders');
+      setOrders(response.data);
     } catch (error) {
-      console.error('Error fetching cargo data', error);
+      console.error('Error fetching orders:', error);
     }
   };
 
-  const deleteCargo = async (id) => {
+  const handleSaveOrder = async (orderData) => {
+    const method = orderData._id ? 'put' : 'post';
+    const url = orderData._id ? `/api/orders/${orderData._id}` : '/api/orders';
+
     try {
-      await axios.delete(`/api/cargo/${id}`);
-      fetchCargo(); // Refresh the list after deletion
+      await axios[method](url, orderData);
+      fetchOrders();
     } catch (error) {
-      console.error('Error deleting cargo', error);
+      console.error('Error saving order:', error);
+    }
+    setShowOrderPopup(false);
+  };
+
+  const deleteOrder = async (id) => {
+    try {
+      await axios.delete(`/api/orders/${id}`);
+      fetchOrders(); // Refresh the list after deletion
+    } catch (error) {
+      console.error('Error deleting order:', error);
     }
   };
 
   const columns = [
-  { Header: 'Customer Name', accessor: 'customerName' },
-  { Header: 'Email', accessor: 'customerEmail' },
-  { Header: 'Cargo Length', accessor: 'cargoLength' },
-  { Header: 'Cargo Width', accessor: 'cargoWidth' },
-  { Header: 'Cargo Height', accessor: 'cargoHeight' },
-  { Header: 'Cargo Value', accessor: 'cargoValue' },
-  { Header: 'Cargo Weight', accessor: 'cargoWeight' },
-  { Header: 'Cargo Category', accessor: 'cargoCategory' },
-  { Header: 'Cargo Hazardous', accessor: 'cargoHazardous' },
-  { Header: 'Pickup Address', accessor: 'pickupAddress' },
-  { Header: 'Delivery Address', accessor: 'deliveryAddress' },
-  { Header: 'Delivery Date', accessor: 'deliveryDate' },
-  { Header: 'Delivery Status', accessor: 'deliveryStatus' },
-  {
-    Header: 'Update',
-    accessor: 'update',
-    Cell: ({ row }) => {
-      console.log("Complete Row:", row);
-      return (
-        <button onClick={() => {
-          console.log("Row data in table:", row); // Debug log
-          handleEditClick(row);
-        }}>
-          Update
-        </button>
-      );
+    { Header: 'Customer Name', accessor: 'customerName' },
+    { Header: 'Customer Email', accessor: 'customerEmail' },
+    { Header: 'Delivery Address', accessor: 'deliveryAddress' },
+    { Header: 'Delivery Date', accessor: 'deliveryDate' },
+    {
+      Header: 'Actions',
+      Cell: ({ row }) => (
+        <>
+          <button onClick={() => {
+            setCurrentOrder(row);
+            setShowOrderPopup(true);
+          }}>Edit</button>
+          <button onClick={() => deleteOrder(row._id)}>Delete</button>
+        </>
+      )
     }
-  },
-  {
-    Header: 'Delete',
-    accessor: 'delete',
-    Cell: ({ row }) => (
-      <button onClick={() => deleteCargo(row._id)}>
-        🗑️
-      </button>
-    )
-  }
-];
+  ];
 
-console.log("Cargo List:", cargoList);
   return (
     <div>
-      <h2>Unfulfilled Cargo</h2>
-      <GenericTable 
-      data={cargoList}
-      columns={columns} 
-      handleEditClick={handleEditClick} 
-      deleteCargo={deleteCargo}
-      />
-      {showEditPopup && (
-        <GenericPopup show={showEditPopup} onClose={() => setShowEditPopup(false)}>
-          <EditPopup
-            cargo={currentEditCargo}
-            onSave={handleSaveEdit}
-          />
+      <h3 class="page-header">Unfulfilled Orders</h3>
+      <button class="add-button" onClick={() => {
+        setCurrentOrder(null);
+        setShowOrderPopup(true);
+      }}>Add Order</button>
+      <GenericTable data={orders} columns={columns} />
+      {showOrderPopup && (
+        <GenericPopup show={showOrderPopup} onClose={() => setShowOrderPopup(false)}>
+          <OrderForm order={currentOrder} onSave={handleSaveOrder} onClose={() => setShowOrderPopup(false)} />
         </GenericPopup>
       )}
     </div>
   );
 };
 
-export default UnfulfilledCargo;
+export default UnfulfilledOrders;
