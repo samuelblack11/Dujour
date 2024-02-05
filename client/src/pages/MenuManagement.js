@@ -81,7 +81,7 @@ const ItemForm = ({ item, onSave, farms }) => {
         ))}
       </select>
 
-      <button type="submit">Save Item</button>
+      <button type="submit" className="add-button">Save Item</button>
     </form>
   );
 };

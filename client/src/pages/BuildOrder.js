@@ -150,7 +150,7 @@ const handleSubmit = async (e) => {
 return (
   <div className="build-order-container">
       <div className="left-sections"> {/* New wrapper for left sections */}
-<div className="order-info-section">
+<div className="customer-info-section">
   <h3>Customer Information</h3>
   <table className="customer-info-table">
     <tbody>
@@ -202,7 +202,7 @@ return (
           </td>
           <td>${(item.quantity * item.unitCost).toFixed(2)}</td>
           <td>
-            <button onClick={() => handleAddToCart(item)}>Add to Cart</button>
+            <button onClick={() => handleAddToCart(item)} className="add-button">Add to Cart</button>
           </td>
         </tr>
       ))}
@@ -241,7 +241,7 @@ return (
       <td>${item.unitCost.toFixed(2)}</td>
       <td>${(item.quantity * item.unitCost).toFixed(2)}</td>
       <td className="actions-cell">
-        <button className="update-btn" onClick={() => toggleUpdateItem(index)}>{item.isUpdating ? "Confirm" : "Update"}</button>
+        <button className="add-button" onClick={() => toggleUpdateItem(index)}>{item.isUpdating ? "Confirm" : "Update"}</button>
         <button className="delete-btn" onClick={() => removeItemFromCart(item.id)}>Delete</button>
       </td>
     </tr>
@@ -253,7 +253,7 @@ return (
       <div className="submitButton">
         <form onSubmit={handleSubmit}>
         <div className="submitButton">
-          <button type="submit">Submit Order</button>
+          <button className="submit-btn" type="submit">Submit Order</button>
         </div>
         </form>
       </div>

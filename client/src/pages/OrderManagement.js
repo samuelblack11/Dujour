@@ -51,10 +51,14 @@ const OrderForm = ({ order, onSave, onClose }) => {
         <input type="text" name="customerName" value={orderData.customerName} onChange={handleChange} />
       </div>
       <div>
-        <label>Customer Email:</label>
-        <input type="email" name="customerEmail" value={orderData.customerEmail} onChange={handleChange} />
+        <label>Order Status</label>
+        <input type="text" name="status" value={orderData.status} onChange={handleChange} />
       </div>
       <div>
+      <div>
+        <label>Total Cost:</label>
+        <input type="number" name="totalCost" value={orderData.totalCost} onChange={handleChange} />
+      </div>
         <label>Delivery Address:</label>
         <input type="text" name="deliveryAddress" value={orderData.deliveryAddress} onChange={handleChange} />
       </div>
@@ -72,19 +76,17 @@ const OrderForm = ({ order, onSave, onClose }) => {
           <input type="text" name="pickupAddress" value={item.pickupAddress} onChange={(e) => handleChange(e, index)} />
         </div>
       ))}
-      <button type="button" onClick={addItemField}>Add Item</button>
-      <button type="submit">Save Order</button>
+      <button type="button" onClick={addItemField} className="add-button">Add Item</button>
     </form>
   );
 };
 
-
-
-
-const UnfulfilledOrders = () => {
+const OrderManagement = () => {
   const [orders, setOrders] = useState([]);
   const [showOrderPopup, setShowOrderPopup] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
+  const [filterField, setFilterField] = useState('');
+  const [filterValue, setFilterValue] = useState('');
 
   useEffect(() => {
     fetchOrders();
@@ -121,9 +123,22 @@ const UnfulfilledOrders = () => {
     }
   };
 
+  const filteredOrders = orders.filter(order => {
+  // If no filter is set, return all orders
+  if (!filterField || !filterValue) {
+    return true;
+  }
+  
+  // Assuming all values are strings; adjust if necessary
+  const orderValue = String(order[filterField]).toLowerCase();
+  return orderValue.includes(filterValue.toLowerCase());
+});
+
+
   const columns = [
     { Header: 'Customer Name', accessor: 'customerName' },
-    { Header: 'Customer Email', accessor: 'customerEmail' },
+    { Header: 'Order Status', accessor: 'status' },
+    { Header: 'Order Cost', accessor: 'totalCost' },
     { Header: 'Delivery Address', accessor: 'deliveryAddress' },
     { Header: 'Delivery Date', accessor: 'deliveryDate' },
     {
@@ -133,8 +148,8 @@ const UnfulfilledOrders = () => {
           <button onClick={() => {
             setCurrentOrder(row);
             setShowOrderPopup(true);
-          }}>Edit</button>
-          <button onClick={() => deleteOrder(row._id)}>Delete</button>
+          }}className="edit-btn">View</button>
+          <button onClick={() => deleteOrder(row._id)} className="delete-btn">Delete</button>
         </>
       )
     }
@@ -142,12 +157,28 @@ const UnfulfilledOrders = () => {
 
   return (
     <div>
-      <h3 class="page-header">Unfulfilled Orders</h3>
+      <h3 class="page-header">Order Management</h3>
+      <div>
+      <select value={filterField} onChange={(e) => setFilterField(e.target.value)}>
+        <option value="">Select a field to filter by</option>
+        <option value="customerName">Customer Name</option>
+        <option value="status">Order Status</option>
+        <option value="deliveryAddress">Delivery Address</option>
+        <option value="deliveryDate">Delivery Date</option>
+    </select>
+  <input
+    type="text"
+    placeholder="Filter value"
+    value={filterValue}
+    onChange={(e) => setFilterValue(e.target.value)}
+  />
+</div>
+
       <button class="add-button" onClick={() => {
         setCurrentOrder(null);
         setShowOrderPopup(true);
       }}>Add Order</button>
-      <GenericTable data={orders} columns={columns} />
+      <GenericTable data={filteredOrders} columns={columns} />
       {showOrderPopup && (
         <GenericPopup show={showOrderPopup} onClose={() => setShowOrderPopup(false)}>
           <OrderForm order={currentOrder} onSave={handleSaveOrder} onClose={() => setShowOrderPopup(false)} />
@@ -157,4 +188,4 @@ const UnfulfilledOrders = () => {
   );
 };
 
-export default UnfulfilledOrders;
+export default OrderManagement;

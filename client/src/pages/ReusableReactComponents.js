@@ -38,7 +38,7 @@ export const GenericPopup = ({ show, children, onClose }) => {
     <div className="popup">
       <div className="popup-inner">
         {children}
-        <button className="popup-cancel-btn" onClick={onClose}>Cancel</button>
+        <button className="delete-btn" onClick={onClose}>Cancel</button>
       </div>
     </div>
   );

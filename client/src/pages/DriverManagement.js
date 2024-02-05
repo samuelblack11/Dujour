@@ -106,8 +106,8 @@ const DriverManagement = () => {
           <button onClick={() => {
             setCurrentDriver(row.original);
             setShowDriverPopup(true);
-          }}>Edit</button>
-          <button onClick={() => deleteDriver(row.original._id)}>Delete</button>
+          }} className="edit-btn">Edit</button>
+          <button onClick={() => deleteDriver(row.original._id)} className="delete-btn">Delete</button>
         </>
       )
     }

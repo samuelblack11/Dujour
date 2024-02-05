@@ -1,137 +1,83 @@
-/* AddCargo Styles */
-.add-cargo-container {
-    color: white;
-    padding: 10px;
-    width: 100%;
-    border-radius: 10px;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+:root {
+  --border-color: #ddd;
+  --border-radius: 8px;
+  --section-padding: 20px;
+  --popup-bg-color: white;
+  --btn-padding: 10px 15px;
+  --btn-margin: 5px 5px;
+  --btn-border-radius: 4px;
+  --btn-hover-opacity: 0.8;
+  --box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --background-color-light: #f9f9f9;
+  --background-color-dark: #f4f4f4;
+  --font-weight-bold: bold;
+  --input-padding: 8px;
+  --margin-bottom-space: 20px;
+  --default-transition: background-color 0.3s;
+  --button-color-primary: rgba(128, 50, 50, 0.6);
+  --button-color-primary-hover: rgba(128, 50, 50, 0.8);
+  --button-color-secondary: rgba(51, 51, 51, 0.6);
+  --button-color-secondary-hover: rgba(51, 51, 51, 0.8);
+  --text-color-white: white;
+  --button-color-danger: #dc3545;
+  --button-color-danger-hover: #bd2130;
+  --button-color-info: #007bff;
+  --button-color-info-hover: #0056b3;
+  #--table-margin: 20px;
 }
 
-.add-cargo-header {
-  font-size: 36px;
-  text-align: center;
-  font-weight: bold;
-  margin-top: -15px;
-  margin-bottom: 10px;
-}
-
-.add-cargo-form {
+/* General Styles for Layout */
+.load-optimization-container, .menu-management-container, .build-order-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%;
+  padding: var(--section-padding);
+  gap: 20px;
 }
 
-.add-cargo-form .form-group {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
-  margin-bottom: 15px;
-  text-align: left;
-}
-
-.add-cargo-form .form-group label,
-.add-cargo-form .form-group input,
-.add-cargo-form .form-group select,
-.add-cargo-form .form-group button {
-  width: 100%;
-  max-width: 300px;
-  margin-bottom: 15px;
-}
-
-.add-cargo-form .form-group input,
-.add-cargo-form .form-group select {
-  padding: 8px;
-}
-
-.add-cargo-form .form-group button {
-  padding: 8px;
-  background-color: green;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-.add-cargo-form .form-group input.error, 
-.add-cargo-form .form-group select.error {
-  border: 2px solid red;
-}
-
-.currency-input-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.currency-symbol {
-  position: absolute;
-  left: 5px;
-  top: 18%;
-  color: black;
-}
-
-.add-cargo-form .form-group .currency-input-container input {
-  padding-left: 15px;
-  font-size: 14px;
-  width: 90%;
-}
-
-/* LoadOptimization Styles */
+/* Grid Layout for Load Optimization */
 .load-optimization-container {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-template-rows: auto 1fr;
-  gap: 20px;
-  padding: 20px;
 }
 
-.load-optimization-container > h2 {
-  grid-column: 1 / -1;
+.load-optimization-container > h2, .form-section, .cargo-list-section, .route-data-section {
   text-align: center;
+  grid-column: 1 / -1;
 }
 
-.form-section {
-  grid-column: 1 / 2;
+.form-section, .cargo-list-section, .route-data-section {
   grid-row: 2;
 }
 
 .cargo-list-section {
-  grid-column: 2 / 3;
-  grid-row: 2;
   overflow-y: auto;
   max-height: 90vh;
 }
 
-.route-data-section {
-  grid-column: 3 / 4;
-  grid-row: 2;
-}
-
-/* UnfulfilledCargo Styles */
+/* Table Styles */
 table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
+  background-color: #FFF8DC; /* Specific for aesthetic */
 }
 
 th, td {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   padding: 8px;
+  text-align: center;
 }
 
 th {
-  background-color: #f4f4f4;
+  background-color: var(--background-color-dark);
 }
 
 tr:nth-child(even) {
-  background-color: #f9f9f9;
+  background-color: var(--background-color-light);
 }
 
-/* Merged Popup Styles (from AddCargo and UnfulfilledCargo, with specifics kept) */
+/* Popup Styles */
 .popup {
   position: fixed;
   top: 0;
@@ -145,303 +91,103 @@ tr:nth-child(even) {
 }
 
 .popup-inner {
-  background: white;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  background: var(--popup-bg-color);
+  padding: var(--section-padding);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
   width: 80%;
   max-width: 500px;
   max-height: 80vh;
   overflow-y: auto;
 }
 
-.popup-inner label {
+/* Forms and Buttons */
+.form-group, .popup-inner label, .customer-info-table label {
   display: block;
-  margin-top: 10px;
-  font-weight: bold;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 5px;
 }
 
+.form-group input, .form-group select, 
 .popup-inner input[type="text"],
 .popup-inner input[type="email"],
 .popup-inner input[type="number"],
 .popup-inner input[type="date"],
-.popup-inner select {
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.popup-inner .popup-ok-btn,
-.popup-inner .popup-cancel-btn {
-  margin-top: 20px;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  color: white;
-}
-
-.popup-inner .popup-ok-btn {
-  background-color: #007bff;
-}
-
-.popup-inner .popup-ok-btn:hover {
-  background-color: #0056b3;
-}
-
-.popup-inner .popup-cancel-btn {
-  background-color: #dc3545;
-}
-
-.popup-inner .popup-cancel-btn:hover {
-  background-color: #bd2130;
-}
-
-.menu-management-container {
-    display: flex;
-    justify-content: space-between;
-    flex-direction: column;
-    padding: 20px;
-}
-
-.control-panel {
-    flex: 1;
-    margin-right: 20px; /* Space between buttons and table */
-}
-
-.menu-items-table {
-    flex: 3;
-}
-
-.add-button {
-    display: inline-flex; /* Use 'inline-flex' to keep buttons inline and allow center alignment of content */
-    align-items: center; /* Vertically center the content */
-    justify-content: center; /* Horizontally center the content */
-    background-color: rgba(128, 50, 50, 0.6); /* Initial background color */
-    color: white; /* Text color */
-    border: none; /* Remove border */
-    padding: 10px 30px; /* Vertical and horizontal padding */
-    margin-bottom: 10px; /* Margin at the bottom */
-    border-radius: 25px; /* Pill shape */
-    cursor: pointer; /* Pointer cursor on hover */
-    font-weight: bold; /* Bold text */
-    transition: background-color 0.3s; /* Smooth transition for background color change on hover */
-}
-
-.add-button:hover {
-    background-color: rgba(128, 50, 50, 0.8); /* Slightly darker on hover */
-}
-
-
-.add-button img {
-    margin-right: 10px;
-    width: 20px; /* Adjust based on your icon size */
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #FFF8DC; /* Creamy background for a farm aesthetic */
-}
-
-th, td {
-    border: 1px solid #ddd;
-    padding: 4px;
-}
-
-th {
-    background-color: #F4A460; /* Sandy brown for headers */
-}
-
-tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-button {
-    margin-right: 5px;
-    background-color: #808080; /* Muted button color */
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-button:hover {
-    opacity: 0.8;
-}
-
-.button-group {
-  display: flex;
-  justify-content: center;
-}
-
-.edit-btn, .delete-btn {
-    margin: 5px;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.edit-btn {
-    background-color: #F4A460; /* Sandy brown for edit */
-}
-
-.delete-btn {
-    background-color: #dc3545; /* Bootstrap's danger color for delete */
-}
-
-.edit-btn:hover, .delete-btn:hover {
-    opacity: 0.8;
-}
-
-.page-header {
-    color:  rgba(128, 50, 50, 0.6);
-}
-
-.build-order-container {
-  display: flex; /* This will layout its children (left-sections and cart-summary) in a row */
-  justify-content: space-between; /* This spaces out the left sections and the order summary */
-  align-items: flex-start; /* Aligns items at the top */
-  margin: 20px;
-  max-width: 1200px;
-}
-
-.left-sections {
-  display: block; /* Default block layout stacks children vertically */
-  flex: 1; /* Allows this section to grow and fill available space */
-  margin-right: 20px; /* Adds some space between this section and the summary */
-}
-
-.order-info-section, .build-cart-section, .cart-summary {
-  flex: 1; /* Ensure equal width */
-  padding: 20px;
-}
-
-.order-info-section {
-  border-bottom: 2px solid #ccc; /* Horizontal line below this section */
-}
-
-.order-info-section, .build-cart-section {
-  padding: 20px;
-  margin-bottom: 20px; /* Adds bottom margin for spacing between sections */
-}
-
-.form-group {
-  display: flex;
-  align-items: center; /* Align items vertically */
-  justify-content: space-between; /* Space between label and input */
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px; /* Space between label and input */
-  font-weight: bold;
-}
-
-.form-group input, .form-group select {
-  width: 100%; /* Full width */
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.total-cost {
-  font-weight: bold;
-  margin-top: 20px;
-}
-
-.item-list {
-  list-style: none;
-  padding: 0;
-}
-
-.item-list li {
-  margin-bottom: 10px;
-}
-
-.submitButton {
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-  align-self: center;
-}
-
-.submitButton button {
-  padding: 10px 20px;
-  background-color: rgba(128, 50, 50, 0.5);
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.submitButton button:hover {
-  background-color: rgba(128, 50, 50, 0.8);
-}
-
-.cart-summary {
-  width: calc(40% - 20px); /* Adjusts the width of the summary; subtract margin/padding as necessary */
-  padding: 20px;
-  border-left: 2px solid #ccc; /* Adds a visual separation */
-  margin-left: 20px; /* Ensures space between sections */
-}
-
-.input-quantity {
-  width: 80%; /* Adjust as needed */
-  max-width: 100px; /* Prevent it from becoming too wide */
-}
-
-.actions-cell {
-  display: flex;
-  flex-direction: column; /* Stack buttons vertically */
-  align-items: center; /* Center buttons horizontally within the cell */
-  justify-content: center; /* Center buttons vertically, useful if the cell has more height */
-}
-
-
-.delete-btn {
-  background-color: #f44336; /* Red */
-}
-
-.order-info-section {
-  background-color: #C2B280; /* Light grey background */
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Soft shadow for depth */
-  margin-bottom: 20px; /* Space between sections */
-}
-
-.form-group {
-  margin-bottom: 15px; /* Space between form groups */
-}
-
-.customer-info-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.customer-info-table td {
-  padding: 8px;
-  border: 1px solid #ddd; /* Light grey border */
-}
-
-.customer-info-table label {
-  margin-right: 10px;
-  font-weight: bold; /* Make labels bold */
-}
-
+.popup-inner select,
 .customer-info-table input[type="text"],
 .customer-info-table input[type="email"],
 .customer-info-table input[type="date"] {
   width: 100%;
-  padding: 8px;
-  margin: 4px 0;
-  box-sizing: border-box; /* Make sure input does not overflow */
+  padding: var(--input-padding);
+  margin-top: 5px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-sizing: border-box;
 }
 
-/* Add more styling here as needed */
+/* Button Styles */
+button, .popup-inner .popup-ok-btn, .popup-inner .popup-cancel-btn, .add-button {
+  padding: var(--btn-padding);
+  border-radius: var(--btn-border-radius);
+  cursor: pointer;
+  color: var(--text-color-white);
+  border: none;
+  transition: var(--default-transition);
+  margin: var(--btn-margin);
+}
+
+button:hover, .popup-inner .popup-ok-btn:hover, .popup-inner .popup-cancel-btn:hover, .add-button:hover {
+  opacity: var(--btn-hover-opacity);
+}
+
+.add-button, .submit-btn {
+  background-color: var(--button-color-primary);
+}
+
+.add-button:hover, .submit-btn:hover {
+  background-color: var(--button-color-primary-hover);
+}
+
+.edit-btn {
+  background-color: var(--button-color-secondary);
+}
+
+.edit-btn:hover {
+  background-color: var(--button-color-secondary-hover);
+}
+
+.delete-btn {
+  background-color: var(--button-color-danger);
+}
+
+.delete-btn:hover {
+  background-color: var(--button-color-danger-hover);
+}
+
+.popup-inner .popup-ok-btn {
+  background-color: var(--button-color-info);
+}
+
+.popup-inner .popup-ok-btn:hover {
+  background-color: var(--button-color-info-hover);
+}
+
+/* Section and Container Styles */
+.customer-info-section, .build-cart-section, .cart-summary {
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--box-shadow);
+  padding: var(--section-padding);
+  margin-bottom: var(--margin-bottom-space);
+}
+
+/* Miscellaneous Styles */
+.total-cost, .item-list li, .submitButton button {
+  font-weight: var(--font-weight-bold);
+}
+
+.input-quantity, .actions-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
