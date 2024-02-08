@@ -107,8 +107,16 @@ app.delete('/api/items/:id', async (req, res) => {
     }
 });
 
+const userSchema = new mongoose.Schema({
+  userName: { type: String, unique: true, required: true },
+  lastOrderNumber: { type: Number, default: 0 } // Tracks the last order number for the user
+});
+
+const User = mongoose.model('User', userSchema);
+
 const orderSchema = new mongoose.Schema({
   customerName: String,
+  orderNumber: Number,
   customerEmail: String,
   deliveryAddress: String,
   deliveryDate: Date,

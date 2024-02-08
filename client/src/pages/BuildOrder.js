@@ -43,8 +43,13 @@ const BuildOrder = () => {
 };
 
 const removeItemFromCart = (itemId) => {
-  // Remove the item from the cart
-  const updatedCartItems = cartItems.filter(item => item.id !== itemId);
+  console.log("Removing item with id:", itemId);
+  console.log("Current cart items:", cartItems);
+
+  const updatedCartItems = cartItems.filter(item => {
+    console.log(`Checking item with id ${item.id} against ${itemId}`);
+    return item.id !== itemId;
+  });
   setCartItems(updatedCartItems);
 };
 
@@ -79,6 +84,7 @@ const handleAddToCart = (itemToAdd) => {
         const newItem = {
             ...itemToAdd,
             quantity: itemToAdd.quantity, // Assuming default quantity as 1, adjust if you're getting quantity from elsewhere
+            id: itemToAdd.id
         };
         setCartItems([...cartItems, newItem]);
     }
@@ -146,10 +152,34 @@ const handleSubmit = async (e) => {
   }
 };
 
+async function createNewOrderForUser(userName, orderData) {
+  // Increment the user's lastOrderNumber atomically
+  const user = await User.findOneAndUpdate(
+    { userName },
+    { $inc: { lastOrderNumber: 1 } },
+    { new: true, upsert: true } // Upsert true to create the user if they don't exist
+  );
+
+  // Construct the uniqueOrderId
+  const uniqueOrderId = `${userName}-${user.lastOrderNumber}`;
+
+  // Create a new order with the uniqueOrderId
+  const newOrder = new Order({
+    ...orderData,
+    userName,
+    orderNumber: user.lastOrderNumber,
+    uniqueOrderId
+  });
+
+  await newOrder.save();
+  return newOrder;
+}
+
+
 
 return (
   <div className="build-order-container">
-      <div className="left-sections"> {/* New wrapper for left sections */}
+  <div className="left-sections"> {/* New wrapper for left sections */}
 <div className="customer-info-section">
   <h3>Customer Information</h3>
   <table className="customer-info-table">

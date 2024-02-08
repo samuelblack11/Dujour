@@ -27,12 +27,32 @@
 }
 
 /* General Styles for Layout */
-.load-optimization-container, .menu-management-container, .build-order-container {
+.load-optimization-container, .menu-management-container {
   display: flex;
   flex-direction: column;
   padding: var(--section-padding);
   gap: 20px;
 }
+
+.build-order-container {
+  display: flex;
+  flex-direction: row; /* Change direction to row */
+  align-items: flex-start; /* Align items at the start of the container */
+}
+
+.cart-summary {
+  display: flex;
+  flex-direction: column; /* Align children vertically */
+  justify-content: center; /* Center content vertically */
+  align-content: center;
+  min-height: 100px;
+  flex-grow: 1; /* This ensures it can expand to fill available space, aiding centering */
+  height: auto; /* This could be adjusted based on your specific needs */
+  margin-left: 20px;
+  margin-right: 20px;
+ 
+}
+
 
 /* Grid Layout for Load Optimization */
 .load-optimization-container {
@@ -59,7 +79,7 @@
 table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
+  table-layout: auto;
   background-color: #FFF8DC; /* Specific for aesthetic */
 }
 
@@ -117,7 +137,7 @@ tr:nth-child(even) {
 .customer-info-table input[type="text"],
 .customer-info-table input[type="email"],
 .customer-info-table input[type="date"] {
-  width: 100%;
+  width: 90%;
   padding: var(--input-padding);
   margin-top: 5px;
   border: 1px solid var(--border-color);
@@ -187,6 +207,7 @@ button:hover, .popup-inner .popup-ok-btn:hover, .popup-inner .popup-cancel-btn:h
 }
 
 .input-quantity, .actions-cell {
+  width: 90%;
   display: flex;
   align-items: center;
   justify-content: center;
