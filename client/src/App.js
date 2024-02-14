@@ -11,10 +11,11 @@ import RouteOptimization from './pages/RouteOptimization';
 import DriverManagement from './pages/DriverManagement';
 import SettingsSupport from './pages/SettingsSupport';
 import MyOrders from './pages/MyOrders';
-import Login from './Login'; // Assume you have a Login component
+import Login from './pages/Login'; // Assume you have a Login component
 
 // Authentication context
-const AuthContext = createContext();
+//const AuthContext = createContext();
+export const AuthContext = createContext(null);
 
 function useAuth() {
   return useContext(AuthContext);
@@ -86,6 +87,11 @@ function App() {
               <img src={logo} className="logo" alt="Dujour Logo" />
             </Link>
             <h2 className="header-title">Dujour: A Farm to Consumer Concept</h2>
+            {user && (
+             <div style={{ position: 'absolute', top: 0, right: 0, margin: '10px' }}>
+              <button onClick={logout} className="sign-out-button" style={{ padding: '5px 10px' }}>Sign Out</button>
+              </div>
+            )}
           </div>
           <Routes>
             {user ? (
@@ -97,7 +103,7 @@ function App() {
                     <Route path="/analytics-reporting" element={<AnalyticsReporting />} />
                     <Route path="/menu-management" element={<MenuManagement />} />
                     <Route path="/order-management" element={<OrderManagement />} />
-                    <Route path="/route-optimizaiton" element={<RouteOptimization />} />
+                    <Route path="/route-optimization" element={<RouteOptimization />} />
                     <Route path="/driver-management" element={<DriverManagement />} />
                   </>
                 )}

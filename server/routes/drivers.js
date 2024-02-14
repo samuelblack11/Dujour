@@ -1,5 +1,9 @@
+const express = require('express');
+const router = express.Router();
+const Driver = require('../models/Driver');
+
 // Driver routes
-app.get('/api/drivers', async (req, res) => {
+router.get('/api/drivers', async (req, res) => {
   try {
     const drivers = await Driver.find();
     res.json(drivers);
@@ -8,7 +12,7 @@ app.get('/api/drivers', async (req, res) => {
   }
 });
 
-app.post('/api/drivers', async (req, res) => {
+router.post('/api/drivers', async (req, res) => {
   const driver = new Driver(req.body);
   try {
     await driver.save();
@@ -18,7 +22,7 @@ app.post('/api/drivers', async (req, res) => {
   }
 });
 
-app.put('/api/drivers/:id', async (req, res) => {
+router.put('/api/drivers/:id', async (req, res) => {
   try {
     const updatedDriver = await Driver.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updatedDriver);
@@ -28,7 +32,7 @@ app.put('/api/drivers/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/drivers/:id', async (req, res) => {
+router.delete('/api/drivers/:id', async (req, res) => {
   try {
     await Driver.findByIdAndDelete(req.params.id);
     res.send('Driver deleted successfully');
@@ -37,3 +41,5 @@ app.delete('/api/drivers/:id', async (req, res) => {
     res.status(500).send('Error deleting driver');
   }
 });
+
+module.exports = router;

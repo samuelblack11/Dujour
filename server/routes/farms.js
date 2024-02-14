@@ -3,7 +3,7 @@ const router = express.Router();
 const Farm = require('../models/Farm');
 
 // Fetch all available items
-app.get('/api/farms', async (req, res) => {
+router.get('/api/farms', async (req, res) => {
   try {
     const farms = await Farm.find();
     res.json(farms);
@@ -13,7 +13,7 @@ app.get('/api/farms', async (req, res) => {
 });
 
 
-app.post('/api/farms', async (req, res) => {
+router.post('/api/farms', async (req, res) => {
     const farm = new Farm(req.body); // Assuming Farm is your mongoose model for farms
     try {
         await farm.save();

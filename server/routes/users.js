@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../models/User');
 
 // User routes
-app.get('/api/users', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const users = await User.find();
     res.json(users);
@@ -12,7 +12,7 @@ app.get('/api/users', async (req, res) => {
   }
 });
 
-app.post('/api/users', async (req, res) => {
+router.post('/', async (req, res) => {
   const user = new User(req.body);
   try {
     await user.save();
@@ -22,7 +22,7 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
-app.put('/api/users/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updatedUser);
@@ -32,7 +32,7 @@ app.put('/api/users/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/users/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     await User.findByIdAndDelete(req.params.id);
     res.send('User deleted successfully');
@@ -42,8 +42,10 @@ app.delete('/api/users/:id', async (req, res) => {
   }
 });
 
-app.post('/api/users/signup', async (req, res) => {
+router.post('/signup', async (req, res) => {
+  console.log("signup endpoint successfully")
   try {
+    console.log("hit signup endpoint.....")
     const { email, password, role } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -59,7 +61,8 @@ app.post('/api/users/signup', async (req, res) => {
   }
 });
 
-app.post('/api/users/login', async (req, res) => {
+router.post('/login', async (req, res) => {
+  console.log("login endpoint successfully")
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
