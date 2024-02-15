@@ -1,6 +1,19 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 const User = require('../models/User');
+
+// Route to delete all users
+router.delete('/deleteAll', async (req, res) => {
+  try {
+    await User.deleteMany({});
+    res.send('All users deleted successfully');
+  } catch (error) {
+    console.error('Error deleting all users:', error);
+    res.status(500).send('Error deleting all users');
+  }
+});
 
 // User routes
 router.get('/', async (req, res) => {
@@ -43,26 +56,25 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/signup', async (req, res) => {
-  console.log("signup endpoint successfully")
   try {
-    console.log("hit signup endpoint.....")
     const { email, password, role } = req.body;
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).send('Email already in use');
+      return res.status(400).json({ message: 'Email already in use' });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ email, password: hashedPassword, role });
     await user.save();
-    res.status(201).send('User created successfully');
+    res.status(201).json({ message: 'User created successfully' });
   } catch (error) {
-    res.status(500).send('Error creating user');
+    console.error('Error creating user:', error);
+    res.status(500).json({ message: 'Error creating user' });
   }
 });
 
+
 router.post('/login', async (req, res) => {
-  console.log("login endpoint successfully")
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
@@ -74,6 +86,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ userId: user._id, role: user.role }, 'yourSecretKey', { expiresIn: '1h' });
     res.json({ token, role: user.role });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).send('Login error');
   }
 });

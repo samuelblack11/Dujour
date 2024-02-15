@@ -46,15 +46,18 @@ async function loginUser(email, password) {
     // Assuming your server responds with the user object and token upon successful authentication
     return response.data; // This will return the response data directly
   } catch (error) {
-    // Error handling: Axios errors contain a response object
-    // Customize the error handling as needed
-    throw new Error(error.response && error.response.data ? error.response.data.message : 'Login failed');
+    // More detailed error handling
+    let errorMessage = 'Login failed due to an unexpected error';
+    if (error.response && error.response.data && error.response.data.message) {
+      // Use the server-provided error message if available
+      errorMessage = error.response.data.message;
+    }
+    throw new Error(errorMessage);
   }
 }
 
 async function registerUser(email, password, role) {
   try {
-    console.log(email)
     const response = await axios.post('/api/users/signup', {
       email,
       password,
@@ -63,14 +66,28 @@ async function registerUser(email, password, role) {
     // Assuming your server responds with status 201 and a success message upon user creation
     return response.data; // This will contain any data sent back from the server, such as a success message or the user object itself
   } catch (error) {
-    // Handle errors with Axios
-    // Customize the error handling as needed, based on the structure of your error response
-    const errorMessage = error.response && error.response.data && error.response.data.message
-                         ? error.response.data.message
-                         : 'Signup failed due to an unexpected error';
+    // More nuanced error handling
+    let errorMessage = 'Signup failed due to an unexpected error';
+    if (error.response && error.response.data && error.response.data.message) {
+      // Use the server-provided error message if available
+      errorMessage = error.response.data.message;
+    }
     throw new Error(errorMessage);
   }
 }
+
+const deleteAllUsers = async () => {
+  if (window.confirm("Are you sure you want to delete all users? This action cannot be undone.")) {
+    try {
+      const response = await axios.delete('/api/users/deleteAll');
+      alert(response.data); // Alert success message
+    } catch (error) {
+      // Error handling
+      console.error("Error deleting all users:", error);
+      alert("Failed to delete all users. Check the console for more details.");
+    }
+  }
+};
 
   return (
     <div className="login-container">
@@ -95,6 +112,7 @@ async function registerUser(email, password, role) {
         )}
         <button className="add-button" type="submit">{isSigningUp ? 'Sign Up' : 'Login'}</button>
       </form>
+      <button className="danger-button" onClick={deleteAllUsers}>Delete All Users</button>
       <button className="add-button" onClick={() => setIsSigningUp(!isSigningUp)}>
         {isSigningUp ? 'Already have an account? Login' : "Don't have an account? Sign Up"}
       </button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, useLocation, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link, useLocation, Navigate, useNavigate } from 'react-router-dom';
 import './App.css';
 import logo from './assets/logo128.png';
 import OperationsOverview from './pages/OperationsOverview';
@@ -45,6 +45,50 @@ function ButtonGrid() {
   );
 }
 
+function SettingsButton() {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
+
+  const toggleDropdown = () => setShowDropdown(!showDropdown);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  return (
+    <div className="settings-button-container">
+      <button onClick={toggleDropdown} className="settings-button">
+        Settings
+      </button>
+      {showDropdown && (
+        <div className="dropdown-menu">
+          <Link to="/my-account" className="dropdown-item">My Account</Link>
+          <button onClick={handleLogout} className="dropdown-item">Logout</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+function LogoutButton() {
+  const navigate = useNavigate(); // Now it's called within the context of <Router>
+  const { logout } = useContext(AuthContext);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  return (
+    <button onClick={handleLogout} className="logout-button">
+      Logout
+    </button>
+  );
+}
+
 function App() {
   const testUser = {
     email: 'snb1582@gmail.com', // Example user ID
@@ -67,6 +111,11 @@ function App() {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+  };
+
+    const handleLogout = () => {
+    logout(); // Call the logout function from your AuthContext
+    navigate('/'); // Redirect to login page
   };
 
   useEffect(() => {
@@ -92,12 +141,15 @@ function App() {
       <Router>
         <LocationListener />
         <div className={`App ${backgroundClass}`}>
-          <div className="header-container">
+        <div className="header-container">
+          <div className="header-content">
             <Link to="/">
               <img src={logo} className="logo" alt="Dujour Logo" />
             </Link>
             <h2 className="header-title">Dujour: A Farm to Consumer Concept</h2>
           </div>
+          {user && <SettingsButton />} {/* Positioned to the right */}
+        </div>
           <Routes>
             {user ? (
               <>
@@ -118,8 +170,8 @@ function App() {
               </>
             ) : (
               <>
-                <Route path="/login" element={<Login />} />
-                <Route path="*" element={<Navigate to="/login" />} />
+                <Route path="/" element={<Login />} />
+                <Route path="*" element={<Navigate to="/" />} />
               </>
             )}
           </Routes>
