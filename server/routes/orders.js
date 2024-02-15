@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
 
-router.post('/api/orders', async (req, res) => {
+router.post('/', async (req, res) => {
   const order = new Order(req.body);
 
   try {
@@ -25,7 +25,7 @@ router.post('/api/orders', async (req, res) => {
 });
 
 // Fetch all orders
-router.get('/api/orders', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const orders = await Order.find();
     res.json(orders);

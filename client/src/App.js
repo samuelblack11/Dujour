@@ -46,6 +46,16 @@ function ButtonGrid() {
 }
 
 function App() {
+  const testUser = {
+    email: 'snb1582@gmail.com', // Example user ID
+    password: 'password',
+    role: 'admin', // Or any role you want to test with
+    lastOrderNumber: 0,
+    creditCardInfo: '1111111111111111',
+    deliveryAddress: '100 Miami Rd, Miami FL',
+    isFirstLogin: false
+  };
+
   const [user, setUser] = useState(null); // Store user role and authentication status
   const [backgroundClass, setBackgroundClass] = useState('');
 
@@ -87,11 +97,6 @@ function App() {
               <img src={logo} className="logo" alt="Dujour Logo" />
             </Link>
             <h2 className="header-title">Dujour: A Farm to Consumer Concept</h2>
-            {user && (
-             <div style={{ position: 'absolute', top: 0, right: 0, margin: '10px' }}>
-              <button onClick={logout} className="sign-out-button" style={{ padding: '5px 10px' }}>Sign Out</button>
-              </div>
-            )}
           </div>
           <Routes>
             {user ? (

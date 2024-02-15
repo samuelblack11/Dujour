@@ -3,7 +3,7 @@ const router = express.Router();
 const Item = require('../models/Item');
 
 // Fetch all available items
-router.get('/api/items', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const items = await AvailableItem.find().populate('farm');
     console.log(items)
@@ -14,7 +14,7 @@ router.get('/api/items', async (req, res) => {
 });
 
 // Assuming req.body.farm contains the ObjectId of the farm
-router.post('/api/items', async (req, res) => {
+router.post('/', async (req, res) => {
   const item = new AvailableItem(req.body); // Now expects req.body to include a farm ObjectId
   try {
     await item.save();
@@ -24,7 +24,7 @@ router.post('/api/items', async (req, res) => {
   }
 });
 
-router.put('/api/items/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
   console.log("Updating item with ID:", req.params.id);
   console.log("New data:", req.body);
   try {
@@ -39,7 +39,7 @@ router.put('/api/items/:id', async (req, res) => {
   }
 });
 
-router.delete('/api/items/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
         const deletedItem = await AvailableItem.findByIdAndDelete(req.params.id);
         if (!deletedItem) {

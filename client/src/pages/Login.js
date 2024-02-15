@@ -55,7 +55,7 @@ async function loginUser(email, password) {
 async function registerUser(email, password, role) {
   try {
     console.log(email)
-    const response = await axios.post('/api/users/', {
+    const response = await axios.post('/api/users/signup', {
       email,
       password,
       role

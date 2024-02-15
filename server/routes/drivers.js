@@ -3,7 +3,7 @@ const router = express.Router();
 const Driver = require('../models/Driver');
 
 // Driver routes
-router.get('/api/drivers', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const drivers = await Driver.find();
     res.json(drivers);
@@ -12,7 +12,7 @@ router.get('/api/drivers', async (req, res) => {
   }
 });
 
-router.post('/api/drivers', async (req, res) => {
+router.post('/', async (req, res) => {
   const driver = new Driver(req.body);
   try {
     await driver.save();
@@ -22,7 +22,7 @@ router.post('/api/drivers', async (req, res) => {
   }
 });
 
-router.put('/api/drivers/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const updatedDriver = await Driver.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(updatedDriver);
@@ -32,7 +32,7 @@ router.put('/api/drivers/:id', async (req, res) => {
   }
 });
 
-router.delete('/api/drivers/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     await Driver.findByIdAndDelete(req.params.id);
     res.send('Driver deleted successfully');
