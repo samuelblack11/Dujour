@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext} from 'react';
 import axios from 'axios';
 import './AllPages.css';
+import { AuthContext } from '../App.js';
 
 const BuildOrder = () => {
+  const { user } = useContext(AuthContext);
   const [orderData, setOrderData] = useState({
-    customerName: '',
     customerEmail: '',
     deliveryAddress: '',
     deliveryDate: '',
+    creditCardNumber: '',
+    creditCardExpiration: '',
+    creditCardCVV: '',
     items: [],
   });
   const [availableItems, setAvailableItems] = useState([]); // Items fetched from the server
@@ -30,6 +34,18 @@ const BuildOrder = () => {
 
     fetchAvailableItems();
   }, []);
+
+  // Inside BuildOrder component
+  useEffect(() => {
+      console.log(user); // Debugging: Log the user object
+      console.log(user.deliveryAddress);
+    if (user.role !== 'admin') {
+      setOrderData(currentOrderData => ({
+        ...currentOrderData,
+        deliveryAddress: user.deliveryAddress || '', // Autofill from user profile
+      }));
+    }
+  }, [user]); // Depend on user to update the state when user info is available
 
   const handleChange = (e) => {
     setOrderData({ ...orderData, [e.target.name]: e.target.value });
@@ -111,14 +127,24 @@ const updateTotalCost = () => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
-
+  let finalOrderData = { ...orderData, items: cartItems };
+  if (user.role !== 'admin') {
+    finalOrderData = {
+      ...finalOrderData,
+      customerEmail: user.email,
+      deliveryAddress: user.deliveryAddress,
+      // Keep the deliveryDate from orderData if you want or set a default
+    };
+  }
   const order = {
     ...orderData,
     items: cartItems, // Assuming you want to submit items that are in the cart
   };
 
   try {
-    const orderResponse = await axios.post('/api/orders', order);
+    console.log("trying post...")
+    console.log(finalOrderData)
+    const orderResponse = await axios.post('/api/orders', finalOrderData);
     alert('Order submitted successfully!');
 
     // Assuming the order is submitted successfully, update the quantity available for each item
@@ -175,8 +201,6 @@ async function createNewOrderForUser(userName, orderData) {
   return newOrder;
 }
 
-
-
 return (
   <div className="build-order-container">
   <div className="left-sections"> {/* New wrapper for left sections */}
@@ -184,14 +208,12 @@ return (
   <h3>Customer Information</h3>
   <table className="customer-info-table">
     <tbody>
-      <tr>
-        <td><label htmlFor="customerName">Customer Name:</label></td>
-        <td><input type="text" name="customerName" id="customerName" value={orderData.customerName} onChange={handleChange} required /></td>
-      </tr>
+       {user.role === 'admin' && (
       <tr>
         <td><label htmlFor="customerEmail">Customer Email:</label></td>
         <td><input type="email" name="customerEmail" id="customerEmail" value={orderData.customerEmail} onChange={handleChange} required /></td>
       </tr>
+        )}
       <tr>
         <td><label htmlFor="deliveryAddress">Delivery Address:</label></td>
         <td><input type="text" name="deliveryAddress" id="deliveryAddress" value={orderData.deliveryAddress} onChange={handleChange} required /></td>
@@ -200,10 +222,21 @@ return (
         <td><label htmlFor="deliveryDate">Delivery Date:</label></td>
         <td><input type="date" name="deliveryDate" id="deliveryDate" value={orderData.deliveryDate} onChange={handleChange} required /></td>
       </tr>
+      <tr>
+        <td><label htmlFor="creditCardNumber">Credit Card Number:</label></td>
+        <td><input type="text" name="creditCardNumber" id="creditCardNumber" value={orderData.creditCardNumber} onChange={handleChange} required /></td>
+    </tr>
+    <tr>
+        <td><label htmlFor="creditCardExpiration">Expiration Date:</label></td>
+        <td><input type="text" name="creditCardExpiration" id="creditCardExpiration" value={orderData.creditCardExpiration} placeholder="MM/YY" onChange={handleChange} required /></td>
+    </tr>
+    <tr>
+        <td><label htmlFor="creditCardCVV">Security Code (CVV):</label></td>
+        <td><input type="text" name="creditCardCVV" id="creditCardCVV" value={orderData.creditCardCVV} onChange={handleChange} required /></td>
+    </tr>
     </tbody>
   </table>
 </div>
-
   <div className="build-cart-section">
   <h3>Build Your Cart</h3>
   <table>

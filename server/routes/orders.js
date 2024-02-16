@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const Order = require('../models/Order');
+const AvailableItem = require('../models/Item');
 
 router.post('/', async (req, res) => {
+  console.log("found post order route....")
   const order = new Order(req.body);
 
   try {
@@ -17,9 +19,9 @@ router.post('/', async (req, res) => {
         { new: true }
       );
     }
-
     res.send('Order data saved to MongoDB and inventory updated.');
   } catch (error) {
+    console.error('Error processing order or updating inventory', error);
     res.status(500).send('Error processing order or updating inventory');
   }
 });

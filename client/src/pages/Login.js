@@ -15,9 +15,10 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const { token, role } = await loginUser(email, password);
+      const { token, userDetails } = await loginUser(email, password);
       localStorage.setItem('token', token); // Store token for session management
-      login({ email, role }); // Update context
+      console.log(userDetails);
+      login(userDetails);
     } catch (error) {
       alert(error.message);
     }
@@ -30,6 +31,7 @@ const handleSignup = async (e) => {
       const { token, role: returnedRole } = await registerUser(email, password, role);
       localStorage.setItem('token', token);
       // Use the role from the API's response if it's different from the one sent
+      console.log(userDetails);
       login({ email, role: returnedRole });
       navigate('/');
     } catch (error) {

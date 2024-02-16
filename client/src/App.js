@@ -72,7 +72,6 @@ function SettingsButton() {
   );
 }
 
-
 function LogoutButton() {
   const navigate = useNavigate(); // Now it's called within the context of <Router>
   const { logout } = useContext(AuthContext);
@@ -90,15 +89,6 @@ function LogoutButton() {
 }
 
 function App() {
-  const testUser = {
-    email: 'snb1582@gmail.com', // Example user ID
-    password: 'password',
-    role: 'admin', // Or any role you want to test with
-    lastOrderNumber: 0,
-    creditCardInfo: '1111111111111111',
-    deliveryAddress: '100 Miami Rd, Miami FL',
-    isFirstLogin: false
-  };
 
   const [user, setUser] = useState(null); // Store user role and authentication status
   const [backgroundClass, setBackgroundClass] = useState('');

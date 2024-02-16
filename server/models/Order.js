@@ -9,6 +9,7 @@ const orderSchema = new Schema({
   deliveryDate: Date,
   status: { type: String, default: 'draft' },
   items: [{
+    //item: { type: Schema.Types.ObjectId, ref: 'Product' },
     itemName: String,
     quantity: Number,
     pickupAddress: String,

@@ -78,16 +78,30 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).send('Invalid email or password');
-    }
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: user._id, role: user.role }, 'yourSecretKey', { expiresIn: '1h' });
-    res.json({ token, role: user.role });
+    if (user && await bcrypt.compare(password, user.password)) {
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user._id, role: user.role }, 
+        'yourSecretKey', // Replace 'yourSecretKey' with your actual secret key
+        { expiresIn: '1h' }
+      );
+
+      // Return the token and user details including deliveryAddress
+      res.json({
+        token,
+        userDetails: {
+          email: user.email,
+          role: user.role,
+          deliveryAddress: user.deliveryAddress // Include deliveryAddress in the response
+        }
+      });
+    } else {
+      res.status(401).json({ message: 'Invalid email or password' });
+    }
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).send('Login error');
+    res.status(500).json({ message: 'Login error' });
   }
 });
 
