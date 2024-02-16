@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { GenericTable, GenericPopup } from './ReusableReactComponents';
 import './AllPages.css';
+import { AuthContext } from '../App.js';
 
-const OrderForm = ({ order, onSave, onClose }) => {
+const OrderForm = ({ order, onSave, onClose, isEditable }) => {
   const initialState = order || {
     customerName: '',
     customerEmail: '',
@@ -47,50 +48,72 @@ const OrderForm = ({ order, onSave, onClose }) => {
   return (
     <form onSubmit={handleSubmit}>
       <div>
-        <label>Customer Name:</label>
-        <input type="text" name="customerName" value={orderData.customerName} onChange={handleChange} />
+        <label>Customer Email:</label>
+        <input type="text" name="customerEmail" value={orderData.customerEmail} onChange={handleChange} readOnly={!isEditable} />
       </div>
       <div>
         <label>Order Status</label>
-        <input type="text" name="status" value={orderData.status} onChange={handleChange} />
+        <input type="text" name="status" value={orderData.status} onChange={handleChange} readOnly={!isEditable} />
       </div>
       <div>
       <div>
         <label>Total Cost:</label>
-        <input type="number" name="totalCost" value={orderData.totalCost} onChange={handleChange} />
+        <input type="number" name="totalCost" value={orderData.totalCost} onChange={handleChange} readOnly={!isEditable} />
       </div>
         <label>Delivery Address:</label>
-        <input type="text" name="deliveryAddress" value={orderData.deliveryAddress} onChange={handleChange} />
+        <input type="text" name="deliveryAddress" value={orderData.deliveryAddress} onChange={handleChange} readOnly={!isEditable} />
       </div>
       <div>
         <label>Delivery Date:</label>
-        <input type="date" name="deliveryDate" value={orderData.deliveryDate} onChange={handleChange} />
+        <input type="date" name="deliveryDate" value={orderData.deliveryDate} onChange={handleChange} readOnly={!isEditable} />
       </div>
       {orderData.items.map((item, index) => (
         <div key={index}>
           <label>Item Name:</label>
-          <input type="text" name="itemName" value={item.itemName} onChange={(e) => handleChange(e, index)} />
+          <input type="text" name="itemName" value={item.itemName} onChange={(e) => handleChange(e, index)} readOnly={!isEditable} />
           <label>Quantity:</label>
-          <input type="number" name="quantity" value={item.quantity} onChange={(e) => handleChange(e, index)} />
+          <input type="number" name="quantity" value={item.quantity} onChange={(e) => handleChange(e, index)} readOnly={!isEditable} />
           <label>Pickup Address:</label>
-          <input type="text" name="pickupAddress" value={item.pickupAddress} onChange={(e) => handleChange(e, index)} />
+          <input type="text" name="pickupAddress" value={item.pickupAddress} onChange={(e) => handleChange(e, index)} readOnly={!isEditable} />
         </div>
       ))}
-      <button type="button" onClick={addItemField} className="add-button">Add Item</button>
+      <button type="button" onClick={addItemField} className="add-button">Ok</button>
     </form>
   );
 };
 
-const OrderManagement = () => {
+const OrderManagement = ({ mode }) => {
   const [orders, setOrders] = useState([]);
   const [showOrderPopup, setShowOrderPopup] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
   const [filterField, setFilterField] = useState('');
   const [filterValue, setFilterValue] = useState('');
+  const { user } = useContext(AuthContext); // Get user info from context
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    console.log("****")
+    console.log("Current mode:", mode);
+    if (mode === 'myOrders') {
+      fetchMyOrders(); // Function to fetch only the current user's orders
+    } else {
+      fetchOrders(); // Fetch all orders
+    }
+  }, [mode]);
+
+    const fetchMyOrders = async () => {
+      try {
+        console.log(user.email)
+        console.log("-----")
+        const allOrdersResponse = await axios.get('/api/orders');
+        console.log(allOrdersResponse)
+        const myOrders = allOrdersResponse.data.filter(order => order.customerEmail === user.email);
+        console.log("+++++")
+        console.log(myOrders)
+        setOrders(myOrders);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      }
+    };
 
   const fetchOrders = async () => {
     try {
@@ -136,23 +159,31 @@ const OrderManagement = () => {
 
 
   const columns = [
-    { Header: 'Customer Name', accessor: 'customerName' },
+    { Header: 'Customer Email', accessor: 'customerEmail' },
     { Header: 'Order Status', accessor: 'status' },
     { Header: 'Order Cost', accessor: 'totalCost' },
     { Header: 'Delivery Address', accessor: 'deliveryAddress' },
     { Header: 'Delivery Date', accessor: 'deliveryDate' },
-    {
-      Header: 'Actions',
-      Cell: ({ row }) => (
-        <>
-          <button onClick={() => {
-            setCurrentOrder(row);
-            setShowOrderPopup(true);
-          }}className="edit-btn">View</button>
-          <button onClick={() => deleteOrder(row._id)} className="delete-btn">Delete</button>
-        </>
-      )
-    }
+{
+  Header: 'Actions',
+  Cell: ({ row }) => {
+    const isDraft = row.status === 'draft';
+    return (
+      <>
+        <button onClick={() => {
+          setCurrentOrder(row);
+          setShowOrderPopup(true);
+        }} className="edit-btn">{isDraft && mode === 'myOrders' ? 'View/Update' : 'View'}</button>
+      {mode !== 'myOrders' && <button onClick={() => {
+        console.log(row);
+        console.log(row.original);
+        deleteOrder(row._id); // Assuming row.original contains your order data
+      }} className="delete-btn">Delete</button>}
+      </>
+    );
+  }
+}
+
   ];
 
   return (
@@ -173,11 +204,6 @@ const OrderManagement = () => {
     onChange={(e) => setFilterValue(e.target.value)}
   />
 </div>
-
-      <button class="add-button" onClick={() => {
-        setCurrentOrder(null);
-        setShowOrderPopup(true);
-      }}>Add Order</button>
       <GenericTable data={filteredOrders} columns={columns} />
       {showOrderPopup && (
         <GenericPopup show={showOrderPopup} onClose={() => setShowOrderPopup(false)}>

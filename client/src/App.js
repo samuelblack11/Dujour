@@ -10,7 +10,6 @@ import OrderManagement from './pages/OrderManagement';
 import RouteOptimization from './pages/RouteOptimization';
 import DriverManagement from './pages/DriverManagement';
 import SettingsSupport from './pages/SettingsSupport';
-import MyOrders from './pages/MyOrders';
 import Login from './pages/Login'; // Assume you have a Login component
 
 // Authentication context
@@ -149,13 +148,13 @@ function App() {
                     <Route path="/operations-overview" element={<OperationsOverview />} />
                     <Route path="/analytics-reporting" element={<AnalyticsReporting />} />
                     <Route path="/menu-management" element={<MenuManagement />} />
-                    <Route path="/order-management" element={<OrderManagement />} />
+                    <Route path="/order-management" element={<OrderManagement mode="allOrders" />} />
                     <Route path="/route-optimization" element={<RouteOptimization />} />
                     <Route path="/driver-management" element={<DriverManagement />} />
                   </>
                 )}
                 <Route path="/build-order" element={<BuildOrder />} />
-                <Route path="/my-orders" element={<MyOrders />} />
+                <Route path="/my-orders" element={<OrderManagement mode="myOrders" />} />
                 <Route path="/settings-support" element={<SettingsSupport />} />
               </>
             ) : (
