@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { GenericTable, GenericPopup } from './ReusableReactComponents';
+import { GenericTable, GenericPopup, DetailedOrderPopup} from './ReusableReactComponents';
 import './AllPages.css';
 import { AuthContext } from '../App.js';
 
@@ -206,10 +206,12 @@ const OrderManagement = ({ mode }) => {
 </div>
       <GenericTable data={filteredOrders} columns={columns} />
       {showOrderPopup && (
-        <GenericPopup show={showOrderPopup} onClose={() => setShowOrderPopup(false)}>
-          <OrderForm order={currentOrder} onSave={handleSaveOrder} onClose={() => setShowOrderPopup(false)} />
-        </GenericPopup>
-      )}
+      <DetailedOrderPopup
+        show={showOrderPopup}
+        order={currentOrder}
+        onClose={() => setShowOrderPopup(false)}
+      />
+    )}
     </div>
   );
 };

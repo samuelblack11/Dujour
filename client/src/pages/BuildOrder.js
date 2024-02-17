@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext} from 'react';
 import axios from 'axios';
 import './AllPages.css';
 import { AuthContext } from '../App.js';
-import { fetchUserByEmail, submitFinalOrder, incrementUserOrderNumber, updateItemQuantities } from './helperFiles/placeOrder';
+import { fetchUserByEmail, submitFinalOrder, incrementUserOrderNumber } from './helperFiles/placeOrder';
 import { validateEmail, validateDeliveryAddress, validateDeliveryDate, validateCreditCardNumber, validateCreditCardExpiration, validateCVV, validateItemQuantities } from './helperFiles/orderValidation';
 
 const BuildOrder = () => {
@@ -78,46 +78,53 @@ const toggleUpdateItem = (index) => {
 };
 
 const handleItemQuantityChange = (index, newQuantity) => {
+  const item = cartItems[index];
+  const stockItem = availableItems.find(avItem => avItem.itemName === item.itemName);
+  if (!stockItem || newQuantity > stockItem.quantityAvailable) {
+    alert(`Sorry, there are only ${stockItem.quantityAvailable} units available of ${item.itemName} in stock.`);
+    return;
+  }
+
   const updatedCartItems = [...cartItems];
-  updatedCartItems[index] = { ...updatedCartItems[index], quantity: Number(newQuantity) };
+  updatedCartItems[index] = { ...item, quantity: newQuantity };
   setCartItems(updatedCartItems);
+  // No need to call updateTotalCost here if it's called within useEffect or elsewhere when cartItems changes.
 };
+
 
 const handleAddToCart = (itemToAdd) => {
-    // Check if the item already exists in the cart
-    const existingItemIndex = cartItems.findIndex(item => item.itemName === itemToAdd.itemName);
+  // Find the corresponding item in availableItems to check stock
+  const stockItem = availableItems.find(item => item._id === itemToAdd._id);
 
-    if (existingItemIndex >= 0) {
-        // Item exists, update its quantity in the cart
-        const updatedCartItems = [...cartItems];
-        updatedCartItems[existingItemIndex] = {
-            ...updatedCartItems[existingItemIndex],
-            quantity: updatedCartItems[existingItemIndex].quantity + itemToAdd.quantity // Assuming you want to increase by 1, adjust accordingly
-        };
-        setCartItems(updatedCartItems);
-    } else {
-        // Item does not exist, add as new item in the cart
-        const newItem = {
-            ...itemToAdd,
-            quantity: itemToAdd.quantity, // Assuming default quantity as 1, adjust if you're getting quantity from elsewhere
-            id: itemToAdd.id
-        };
-        setCartItems([...cartItems, newItem]);
-    }
+  if (!stockItem) {
+    alert('Item not found.');
+    return;
+  }
 
-        // Reset the quantity of the itemToAdd in availableItems
-    const updatedAvailableItems = availableItems.map(item => {
-        if (item.itemName === itemToAdd.itemName) {
-            return { ...item, quantity: 0 }; // Reset quantity
-        }
-        return item;
-    });
-    setAvailableItems(updatedAvailableItems);
+  // Calculate the total quantity of this item already in the cart
+  const cartItem = cartItems.find(item => item._id === itemToAdd._id);
+  const totalQuantityInCart = cartItem ? cartItem.quantity + itemToAdd.quantity : itemToAdd.quantity;
 
+  if (totalQuantityInCart > stockItem.quantityAvailable) {
+    alert(`Sorry, there are only ${stockItem.quantityAvailable} units of ${itemToAdd.itemName} available in stock.`);
+    return;
+  }
 
-    // Update total cost after adding item to cart
-    updateTotalCost();
+  // If item already exists in the cart, update its quantity
+  if (cartItem) {
+    const updatedCartItems = cartItems.map(item =>
+      item._id === itemToAdd._id ? { ...item, quantity: totalQuantityInCart } : item
+    );
+    setCartItems(updatedCartItems);
+  } else {
+    // Add new item to the cart
+    setCartItems([...cartItems, { ...itemToAdd, quantity: itemToAdd.quantity }]);
+  }
+
+  // Update total cost
+  updateTotalCost();
 };
+
 
 // Adjust `updateTotalCost` to work directly with `cartItems` instead of `availableItems`
 const updateTotalCost = () => {
@@ -129,39 +136,21 @@ const handleSubmit = async (e) => {
   e.preventDefault();
 
   // Validation checks
-  if (!validateEmail(orderData.customerEmail)) {
-    alert('Please enter a valid email address.');
-    return;
-  }
-  if (!validateDeliveryAddress(orderData.deliveryAddress)) {
-    alert('Please enter a valid delivery address.');
-    return;
-  }
+  if (!validateEmail(orderData.customerEmail)) {alert('Please enter a valid email address.'); return;}
+  if (!validateDeliveryAddress(orderData.deliveryAddress)) {alert('Please enter a valid delivery address.'); return;}
+  if (!validateDeliveryDate(orderData.deliveryDate)) { alert('Please enter a valid delivery address.'); return;}
+  if (!validateCreditCardNumber(orderData.creditCardNumber)) {alert('Please enter a valid credit card number.'); return;}
+  if (!validateCreditCardExpiration(orderData.creditCardExpiration)) {alert('Please enter a valid credit card expiration.'); return;}
+  if (!validateCVV(orderData.creditCardCVV)) {alert('Please enter valid cvv.'); return;}
+  if (!validateItemQuantities(cartItems)) {console.log("+++"); console.log(`${cartItems.quantity}`); alert('Please ensure all item quantities are valid.'); return;}
 
-  if (!validateDeliveryDate(orderData.deliveryDate)) {
-    alert('Please enter a valid delivery address.');
-    return;
-  }
-
-  if (!validateCreditCardNumber(orderData.creditCardNumber)) {
-    alert('Please enter a valid credit card number.');
-    return;
-  }
-
-  if (!validateCreditCardExpiration(orderData.creditCardExpiration)) {
-    alert('Please enter a valid credit card expiration.');
-    return;
-  }
-
-  if (!validateCVV(orderData.creditCardCVV)) {
-    alert('Please enter valid cvv.');
-    return;
-  }
-  if (!validateItemQuantities(cartItems)) {
-    console.log("+++")
-    console.log(`${cartItems.quantity}`)
-    alert('Please ensure all item quantities are valid.');
-    return;
+  // Check for stock availability before proceeding with the order submission
+  for (const cartItem of cartItems) {
+    const stockItem = availableItems.find(item => item._id === cartItem._id);
+    if (!stockItem || cartItem.quantity > stockItem.quantityAvailable) {
+      alert(`Sorry, there are only ${stockItem.quantityAvailable} units of ${cartItem.itemName} available in stock.`);
+      return; // Stop submission if any item exceeds available stock
+    }
   }
 
   let nextOrderNumber;
@@ -183,7 +172,7 @@ const handleSubmit = async (e) => {
 
     if (orderResponse.status === 200 || orderResponse.status === 201) {
       await incrementUserOrderNumber(userEmailToUpdate);
-      await updateItemQuantities(cartItems, availableItems);
+      fetchAvailableItems();
     }
 
     // Reset form and state

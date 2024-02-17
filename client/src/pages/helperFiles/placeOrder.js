@@ -28,14 +28,3 @@ export const incrementUserOrderNumber = async (email) => {
     throw new Error('Error incrementing order number');
   }
 };
-
-// Function to update item quantities
-export const updateItemQuantities = async (cartItems, availableItems) => {
-  for (const item of cartItems) {
-    const availableItem = availableItems.find(avItem => avItem.itemName === item.itemName);
-    if (availableItem) {
-      const newQuantityAvailable = availableItem.quantityAvailable - item.quantity;
-      await axios.put(`/api/items/${availableItem._id}`, { quantityAvailable: newQuantityAvailable });
-    }
-  }
-};
