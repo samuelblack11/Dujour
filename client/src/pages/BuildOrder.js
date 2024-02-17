@@ -2,10 +2,12 @@ import React, { useState, useEffect, useContext} from 'react';
 import axios from 'axios';
 import './AllPages.css';
 import { AuthContext } from '../App.js';
+import { fetchUserByEmail, submitFinalOrder, incrementUserOrderNumber, updateItemQuantities } from './helperFiles/placeOrder';
+import { validateEmail, validateDeliveryAddress, validateDeliveryDate, validateCreditCardNumber, validateCreditCardExpiration, validateCVV, validateItemQuantities } from './helperFiles/orderValidation';
 
 const BuildOrder = () => {
   const { user } = useContext(AuthContext);
-  const [orderData, setOrderData] = useState({
+    const initialOrderState = {
     customerEmail: '',
     deliveryAddress: '',
     deliveryDate: '',
@@ -13,7 +15,8 @@ const BuildOrder = () => {
     creditCardExpiration: '',
     creditCardCVV: '',
     items: [],
-  });
+  };
+  const [orderData, setOrderData] = useState(initialOrderState);
   const [availableItems, setAvailableItems] = useState([]); // Items fetched from the server
   const [cartItems, setCartItems] = useState([]); // Items added to the cart
   const [totalCost, setTotalCost] = useState(0);
@@ -59,9 +62,6 @@ const BuildOrder = () => {
 };
 
 const removeItemFromCart = (itemId) => {
-  console.log("Removing item with id:", itemId);
-  console.log("Current cart items:", cartItems);
-
   const updatedCartItems = cartItems.filter(item => {
     console.log(`Checking item with id ${item.id} against ${itemId}`);
     return item.id !== itemId;
@@ -127,102 +127,76 @@ const updateTotalCost = () => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
-  //const nextOrderNumber = user.lastOrderNumber + 1;
+
+  // Validation checks
+  if (!validateEmail(orderData.customerEmail)) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+  if (!validateDeliveryAddress(orderData.deliveryAddress)) {
+    alert('Please enter a valid delivery address.');
+    return;
+  }
+
+  if (!validateDeliveryDate(orderData.deliveryDate)) {
+    alert('Please enter a valid delivery address.');
+    return;
+  }
+
+  if (!validateCreditCardNumber(orderData.creditCardNumber)) {
+    alert('Please enter a valid credit card number.');
+    return;
+  }
+
+  if (!validateCreditCardExpiration(orderData.creditCardExpiration)) {
+    alert('Please enter a valid credit card expiration.');
+    return;
+  }
+
+  if (!validateCVV(orderData.creditCardCVV)) {
+    alert('Please enter valid cvv.');
+    return;
+  }
+  if (!validateItemQuantities(cartItems)) {
+    console.log("+++")
+    console.log(`${cartItems.quantity}`)
+    alert('Please ensure all item quantities are valid.');
+    return;
+  }
 
   let nextOrderNumber;
-
-  if (user.role === 'admin' && orderData.customerEmail) {
-    // Admin is placing the order for another user
-    try {
-      // Query to get the specific user based on email
-      const userResponse = await axios.get(`/api/users/email/${orderData.customerEmail}`);
-      const userForOrder = userResponse.data;
-      if (userForOrder) {
-        nextOrderNumber = userForOrder.lastOrderNumber + 1;
-      } else {
-        // Default to 1 if no user is found
-        nextOrderNumber = 1;
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-      // Handle error or default to 1 if the user cannot be fetched
-      nextOrderNumber = 1;
-    }
-  } else {
-    // Non-admin user or admin not specifying a customer email
-    nextOrderNumber = user.lastOrderNumber + 1;
-  }
-
-
-  let finalOrderData = { 
-    ...orderData,
-    orderNumber: nextOrderNumber,
-    items: cartItems };
-  if (user.role !== 'admin') {
-    finalOrderData = {
-      ...finalOrderData,
-      customerEmail: user.email,
-      deliveryAddress: user.deliveryAddress,
-    };
-  }
+  let userEmailToUpdate;
 
   try {
-    console.log("trying post...")
-    const orderResponse = await axios.post('/api/orders', finalOrderData);
-    alert('Order submitted successfully!');
-
-  if (orderResponse.status === 200 || orderResponse.status === 201) {
-    let userEmailToUpdate;
-
-    // Determine which user's lastOrderNumber should be updated
+    // Determine nextOrderNumber and userEmailToUpdate logic here
     if (user.role === 'admin' && orderData.customerEmail) {
-      // For admin placing an order for another user, use the customer's email
+      const userForOrder = await fetchUserByEmail(orderData.customerEmail);
+      nextOrderNumber = userForOrder ? userForOrder.lastOrderNumber + 1 : 1;
       userEmailToUpdate = orderData.customerEmail;
     } else {
-      // For non-admin users or admin placing an order for themselves, use the logged-in user's email
-     userEmailToUpdate = user.email;
+      nextOrderNumber = user.lastOrderNumber + 1;
+      userEmailToUpdate = user.email;
     }
 
-    // Update the lastOrderNumber for the determined user
-    try {
-      console.log(`....${userEmailToUpdate}`)
-      await axios.put(`/api/users/email/${userEmailToUpdate}/incrementOrderNumber`);
-      console.log(`Order number incremented for user: ${userEmailToUpdate}`);
-    } catch (error) {
-      console.error(`Error incrementing order number for ${userEmailToUpdate}:`, error);
+    let finalOrderData = { ...orderData, orderNumber: nextOrderNumber, items: cartItems };
+    const orderResponse = await submitFinalOrder(finalOrderData);
+
+    if (orderResponse.status === 200 || orderResponse.status === 201) {
+      await incrementUserOrderNumber(userEmailToUpdate);
+      await updateItemQuantities(cartItems, availableItems);
     }
-  }
 
-    // Assuming the order is submitted successfully, update the quantity available for each item
-    cartItems.forEach(async (item) => {
-      try {
-        // You need to find the corresponding available item and calculate the new quantity
-        const availableItem = availableItems.find(avItem => avItem.itemName === item.itemName);
-        if (availableItem) {
-          const newQuantityAvailable = availableItem.quantityAvailable - item.quantity;
-          await axios.put(`/api/items/${availableItem._id}`, { quantityAvailable: newQuantityAvailable });
-          // Assuming your server endpoint accepts the new quantityAvailable in this format
-        }
-      } catch (error) {
-        console.error(`Error updating quantity for item ${item.itemName}`, error);
-      }
-    });
-
-    // Reset the form and available items here
-    setOrderData({
-      customerName: '',
-      customerEmail: '',
-      deliveryAddress: '',
-      deliveryDate: '',
-      items: [],
-    });
+    // Reset form and state
+    setOrderData(initialOrderState);
     setCartItems([]);
-    setAvailableItems(availableItems.map(item => ({ ...item, quantity: 0 })));
+    alert('Order submitted successfully!');
   } catch (error) {
-    console.error('Error submitting order', error);
-    alert('Error submitting order. Please try again.');
+    console.error(error.message);
+    alert('Failed to submit the order. Please try again.');
   }
 };
+
+
 
 async function createNewOrderForUser(userName, orderData) {
   // Increment the user's lastOrderNumber atomically
