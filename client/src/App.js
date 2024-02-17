@@ -10,10 +10,7 @@ import OrderManagement from './pages/OrderManagement';
 import RouteOptimization from './pages/RouteOptimization';
 import DriverManagement from './pages/DriverManagement';
 import SettingsSupport from './pages/SettingsSupport';
-import Login from './pages/Login'; // Assume you have a Login component
-
-// Authentication context
-//const AuthContext = createContext();
+import Login from './pages/Login';
 export const AuthContext = createContext(null);
 
 function useAuth() {
@@ -26,19 +23,19 @@ function ButtonGrid() {
   return (
     <div className="container">
       <div className="button-grid">
-        {user.role === 'admin' && (
-          <>
-            <Link to="/operations-overview"><button className="dashboard-button">Operations Overview</button></Link>
-            <Link to="/analytics-reporting"><button className="dashboard-button">Analytics & Reporting</button></Link>
-            <Link to="/menu-management"><button className="dashboard-button">Menu Management</button></Link>
-            <Link to="/order-management"><button className="dashboard-button">Order Management</button></Link>
-            <Link to="/route-optimization"><button className="dashboard-button">Route Optimization</button></Link>
-            <Link to="/driver-management"><button className="dashboard-button">Driver Management</button></Link>
-          </>
-        )}
         <Link to="/build-order"><button className="dashboard-button">Build Order</button></Link>
         <Link to="/my-orders"><button className="dashboard-button">My Orders</button></Link>
-        <Link to="/settings-support"><button className="dashboard-button">Settings & Support</button></Link>
+        {user.role === 'admin' && (
+          <>
+            <Link to="/order-management"><button className="dashboard-button">Order Management</button></Link>
+            <Link to="/route-optimization"><button className="dashboard-button">Route Optimization</button></Link>
+            <Link to="/menu-management"><button className="dashboard-button">Menu Management</button></Link>
+            <Link to="/driver-management"><button className="dashboard-button">Driver Management</button></Link>
+            {/* <Link to="/operations-overview"><button className="dashboard-button">Operations Overview</button></Link>*/}
+            {/* <Link to="/analytics-reporting"><button className="dashboard-button">Analytics & Reporting</button></Link>*/}
+          </>
+        )}
+        {/*<Link to="/settings-support"><button className="dashboard-button">Settings & Support</button></Link>*/}
       </div>
     </div>
   );

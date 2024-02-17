@@ -105,5 +105,39 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.put('/:emailAddress/incrementOrderNumber', async (req, res) => {
+  try {
+    const emailAddress = req.params.emailAddress;
+    // Correctly find the user by email address
+    const user = await User.findOne({ email: emailAddress });
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    user.lastOrderNumber += 1;
+    await user.save();
+
+    res.send('User order number incremented successfully');
+  } catch (error) {
+    console.error('Error incrementing user order number:', error);
+    res.status(500).send('Error incrementing user order number');
+  }
+});
+
+router.get('/email/:emailAddress', async (req, res) => {
+  try {
+    const emailAddress = req.params.emailAddress;
+    // Correctly find the user by email address
+    const user = await User.findOne({ email: emailAddress });
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    res.json(user)
+  } catch (error) {
+    console.error('Error incrementing user order number:', error);
+    res.status(500).send('Error incrementing user order number');
+  }
+});
 
 module.exports = router;

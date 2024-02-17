@@ -136,16 +136,25 @@ const FarmForm = ({ farm, onSave }) => {
         required
       />
 
-      <label htmlFor="contactNumber">Contact Number:</label>
+      <label htmlFor="phoneNumber">Contact Number:</label>
       <input
-        id="contactNumber"
-        name="contactNumber"
+        id="phoneNumber"
+        name="phoneNumber"
         type="text"
-        value={formState.contactNumber}
+        value={formState.phoneNumber}
         onChange={handleChange}
       />
 
-      <button type="submit">Save Farm</button>
+      <label htmlFor="emailAddress">Email:</label>
+      <input
+        id="emailAddress"
+        name="emailAddress"
+        type="text"
+        value={formState.emailAddress}
+        onChange={handleChange}
+      />
+
+      <button type="submit" className="add-button">Save Farm</button>
     </form>
   );
 };
@@ -169,7 +178,7 @@ const MenuManagement = () => {
   },
   {
     Header: 'Farm',
-    Cell: ({ row }) => row.farm.name
+    Cell: ({ row }) => row.farm ? row.farm.name : 'No Farm Assigned'
   },
   {
     Header: 'Quantity Available',
@@ -187,6 +196,35 @@ const MenuManagement = () => {
   }
 ];
 
+    const farmColumns = [
+  {
+    Header: 'Name',
+    accessor: 'name', // The key from the item data
+  },
+    {
+    Header: 'Address',
+    accessor: 'address', // The key from the item data
+  },
+  {
+    Header: 'Phone Number',
+    accessor: 'phoneNumber',
+  },
+  {
+    Header: 'Email',
+    accessor: 'emailAddress',
+  },
+  {
+    Header: 'Actions',
+    accessor: 'actions',
+    Cell: ({ row }) => (
+      <>
+        <button onClick={() => handleAddEditFarm(row)} className="edit-btn">Edit</button>
+        <button onClick={() => handleDeleteFarm(row._id)} className="delete-btn">Delete</button>
+      </>
+    ),
+  }
+];
+
     useEffect(() => {
         fetchItems();
         fetchFarms();
@@ -195,7 +233,6 @@ const MenuManagement = () => {
     const fetchItems = async () => {
         try {
             const response = await axios.get('/api/items');
-            console.log("Fetched Items:", response.data); // Inspect the fetched data
             setItems(response.data);
         } catch (error) {
             console.error('Failed to fetch items:', error);
@@ -243,14 +280,32 @@ const MenuManagement = () => {
         }
     };
 
-    const handleDeleteFarm = async (id) => {
-        try {
-            await axios.delete(`/api/farms/${id}`);
-            fetchFarms(); // Refresh farms list after deletion
-        } catch (error) {
-            console.error('Failed to delete farm:', error);
+
+    const handleDeleteFarm = async (farmId) => {
+    try {
+        // Fetch all items
+        const itemsResponse = await axios.get('/api/items');
+        const items = itemsResponse.data;
+        // Filter items by farm ID
+        const itemsToDelete = items.filter(item => item.farm._id === farmId);
+
+        // Delete each filtered item
+        for (const item of itemsToDelete) {
+            await axios.delete(`/api/items/${item._id}`);
+            console.log(`Deleted item with id: ${item._id}`);
         }
-    };
+        fetchItems();
+        // Delete the farm after all associated items are deleted
+        await axios.delete(`/api/farms/${farmId}`);
+        console.log(`Farm with id ${farmId} has been deleted.`);
+
+        // Refresh farms list after deletion
+        fetchFarms();
+    } catch (error) {
+        console.error('Failed to delete farm or its associated items:', error);
+    }
+};
+
     return (
         <div className="menu-management-container">
         <h3 class="page-header">Menu Management</h3>
@@ -277,6 +332,15 @@ const MenuManagement = () => {
                 columns={columns} 
                 handleEditClick={handleAddEditItem} 
                 deleteCargo={handleDeleteItem} 
+                />
+            </div>
+                        <div className="farms-table">
+            <h3>Farms</h3>
+            <GenericTable 
+                data={farms} 
+                columns={farmColumns} 
+                handleEditClick={handleAddEditFarm} 
+                deleteCargo={handleDeleteFarm} 
                 />
             </div>
         </div>

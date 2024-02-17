@@ -127,25 +127,68 @@ const updateTotalCost = () => {
 
 const handleSubmit = async (e) => {
   e.preventDefault();
-  let finalOrderData = { ...orderData, items: cartItems };
+  //const nextOrderNumber = user.lastOrderNumber + 1;
+
+  let nextOrderNumber;
+
+  if (user.role === 'admin' && orderData.customerEmail) {
+    // Admin is placing the order for another user
+    try {
+      // Query to get the specific user based on email
+      const userResponse = await axios.get(`/api/users/email/${orderData.customerEmail}`);
+      const userForOrder = userResponse.data;
+      console.log("%%%")
+      console.log(userForOrder)
+      if (userForOrder) {
+        nextOrderNumber = userForOrder.lastOrderNumber + 1;
+      } else {
+        // Default to 1 if no user is found
+        nextOrderNumber = 1;
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      // Handle error or default to 1 if the user cannot be fetched
+      nextOrderNumber = 1;
+    }
+  } else {
+    // Non-admin user or admin not specifying a customer email
+    nextOrderNumber = user.lastOrderNumber + 1;
+  }
+
+
+  let finalOrderData = { 
+    ...orderData,
+    orderNumber: nextOrderNumber,
+    items: cartItems };
   if (user.role !== 'admin') {
     finalOrderData = {
       ...finalOrderData,
       customerEmail: user.email,
       deliveryAddress: user.deliveryAddress,
-      // Keep the deliveryDate from orderData if you want or set a default
     };
   }
-  const order = {
-    ...orderData,
-    items: cartItems, // Assuming you want to submit items that are in the cart
-  };
+  //const order = {
+  //  ...orderData,
+  //  items: cartItems, // Assuming you want to submit items that are in the cart
+  //};
 
   try {
     console.log("trying post...")
+    console.log(user)
+    console.log(user.email)
     console.log(finalOrderData)
     const orderResponse = await axios.post('/api/orders', finalOrderData);
     alert('Order submitted successfully!');
+
+    // If the order submission is successful, increment the user's lastOrderNumber
+    if (orderResponse.status === 200 || orderResponse.status === 201) {
+      // Assuming the user's ID is stored in the context or derived from orderResponse
+      const userEmail = user.email; // Make sure this is correctly sourced
+      await axios.put(`/api/users/${userEmail}/incrementOrderNumber`);
+
+      // Optionally, update the user context or local state to reflect the new lastOrderNumber
+      // This step depends on how you manage user state in your application
+    }
 
     // Assuming the order is submitted successfully, update the quantity available for each item
     cartItems.forEach(async (item) => {

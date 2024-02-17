@@ -24,4 +24,17 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.delete('/:id', async (req, res) => {
+    try {
+        const deletedFarm = await Farm.findByIdAndDelete(req.params.id);
+        if (!deletedFarm) {
+            return res.status(404).send('Farm not found');
+        }
+        res.send('Farm deleted successfully');
+    } catch (error) {
+        console.error('Error deleting Farm:', error);
+        res.status(500).send('Error deleting itFarmem');
+    }
+});
+
 module.exports = router;

@@ -188,7 +188,7 @@ const OrderManagement = ({ mode }) => {
 
   return (
     <div>
-      <h3 class="page-header">Order Management</h3>
+      <h3 class="page-header">{mode == 'myOrders' ? 'My Orders' : 'Order Management'}</h3>
       <div>
       <select value={filterField} onChange={(e) => setFilterField(e.target.value)}>
         <option value="">Select a field to filter by</option>
