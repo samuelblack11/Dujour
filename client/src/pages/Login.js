@@ -114,7 +114,9 @@ const deleteAllUsers = async () => {
         )}
         <button className="add-button" type="submit">{isSigningUp ? 'Sign Up' : 'Login'}</button>
       </form>
-      <button className="danger-button" onClick={deleteAllUsers}>Delete All Users</button>
+      {/* 
+      //<button className="danger-button" onClick={deleteAllUsers}>Delete All Users</button> 
+      */}
       <button className="add-button" onClick={() => setIsSigningUp(!isSigningUp)}>
         {isSigningUp ? 'Already have an account? Login' : "Don't have an account? Sign Up"}
       </button>

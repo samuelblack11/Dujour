@@ -21,8 +21,7 @@ const BuildOrder = () => {
   const [cartItems, setCartItems] = useState([]); // Items added to the cart
   const [totalCost, setTotalCost] = useState(0);
 
-  useEffect(() => {
-    const fetchAvailableItems = async () => {
+      const fetchAvailableItems = async () => {
       try {
         const response = await axios.get('/api/items');
         setAvailableItems(response.data.map(item => ({
@@ -35,6 +34,7 @@ const BuildOrder = () => {
       }
     };
 
+  useEffect(() => {
     fetchAvailableItems();
   }, []);
 

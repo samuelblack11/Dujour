@@ -11,7 +11,7 @@ export const validateDeliveryAddress = (address) => {
   // It checks for a number (street number) followed by text (street name),
   // then a comma, then more text (city), another comma, and then state abbreviation and optional zip code.
   // This is a simplistic and US-centric pattern and should be adjusted according to your specific needs.
-  const regex = /^\d+\s[A-z]+\s[A-z]+,\s[A-z]+,\s[A-Z]{2}\s*\d*$/;
+  const regex = /^\d+\s+[A-Za-z\s]+,\s+[A-Za-z\s]+,\s+[A-Z]{2}\s*\d*$/;
   return regex.test(address.trim());
 };
 
