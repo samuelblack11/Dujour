@@ -15,13 +15,11 @@ const options = {
 };
 const geocoder = NodeGeocoder(options);
 async function geocodeAddresses(addresses) {
-    console.log("geocodeAddresses called....")
   return Promise.all(addresses.map(address => geocoder.geocode(address)));
 }
 
 function clusterAddresses(coordinates, numClusters) {
   const result = kmeans(coordinates, numClusters);
-    console.log("clusterAddresses called....")
   return result.clusters; // This will give you the index of the cluster for each address
 }
 
@@ -30,10 +28,20 @@ function calculateDistance(point1, point2) {
   return Math.sqrt(Math.pow(point1.latitude - point2.latitude, 2) + Math.pow(point1.longitude - point2.longitude, 2));
 }
 
-// Example adjustment to include address information
-function optimizeRouteForCluster(clusterId, clusterAssignments, deliveryCoordinates, geocodedAddresses, warehouseLocation) {
+function optimizeRouteForCluster(clusterId, clusterAssignments, deliveryCoordinates, geocodedAddresses, warehouseLocation, addressToGeocodeMap) {
+  console.log(`Optimizing Cluster: ${clusterId}`);
+  
   // Filter deliveryCoordinates to include only those in the current cluster
-  const coordinatesForThisCluster = deliveryCoordinates.filter((_, index) => clusterAssignments[index] === clusterId);
+  const coordinatesForThisCluster = deliveryCoordinates
+    .map((coord, index) => ({ coord, index }))
+    .filter(({ _, index }) => clusterAssignments[index] === clusterId)
+    .map(({ coord }) => coord);
+
+  // Print geocoded addresses for this cluster
+  //console.log(`Geocoded Addresses for this Cluster: ${JSON.stringify(geocodedAddresses)}`);
+  
+  // Print coordinates for this cluster
+  console.log(`Coordinates for this Cluster: ${JSON.stringify(coordinatesForThisCluster)}`);
 
   // Sort the coordinates by distance to the warehouse
   const sortedCoordinates = coordinatesForThisCluster.sort((a, b) => {
@@ -42,54 +50,77 @@ function optimizeRouteForCluster(clusterId, clusterAssignments, deliveryCoordina
     return distanceA - distanceB; // Ascending order
   });
 
-  // Map sorted coordinates back to addresses
-  const sortedAddresses = sortedCoordinates.map(coord => {
-    const addressIndex = deliveryCoordinates.findIndex(deliveryCoord => deliveryCoord[0] === coord[0] && deliveryCoord[1] === coord[1]);
-    return geocodedAddresses[addressIndex + 1][0].formattedAddress; // +1 to account for the warehouse address being the first
-  });
+  // Print sorted coordinates for this cluster
+  console.log(`Sorted Coordinates for this Cluster: ${JSON.stringify(sortedCoordinates)}`);
+
+// After sorting coordinates for a cluster...
+const sortedAddresses = sortedCoordinates.map(coord => {
+  const geocodeResult = Array.from(addressToGeocodeMap.entries()).find(([_, geoResult]) =>
+    geoResult.latitude === coord[0] && geoResult.longitude === coord[1]
+  );
+
+  return geocodeResult ? geocodeResult[0] : null; // Return the original address
+});
+
+  // Print sorted address for cluster
+  console.log(`Sorted Address for Cluster # ${clusterId}`);
+  console.log(`${sortedAddresses}`);
+  console.log("------------------------------------");
 
   return sortedAddresses;
 }
 
-
 router.post('/', async (req, res) => {
-  const { deliveryAddresses, numClusters, warehouseLocation } = req.body;
+  const { orders, numClusters, warehouseLocation } = req.body;
+
   try {
-    // Step 1: Geocode all addresses, including the warehouse
-    const addressesToGeocode = [warehouseLocation, ...deliveryAddresses];
+    const warehouseGeocode = await geocodeAddresses([warehouseLocation]);
+    const warehouseCoordinates = warehouseGeocode[0].length > 0 
+      ? [warehouseGeocode[0][0].latitude, warehouseGeocode[0][0].longitude]
+      : [undefined, undefined];
+
+    const addressesToGeocode = orders.map(order => order.deliveryAddress);
     const geocodedAddresses = await geocodeAddresses(addressesToGeocode);
-    // Extract just the coordinates for clustering
-    // Assuming you always want to use the first geocoding result for each address
-    const coordinates = geocodedAddresses.map(addr => {
-    if (addr.length > 0) { // Check if there are any geocoding results
-      return [addr[0].latitude, addr[0].longitude];
-    } else {
-       return [undefined, undefined]; // Or handle this case differently
-    }
-   });
-    // Step 2: Cluster the delivery addresses (excluding the warehouse, which is at index 0)
-    const deliveryCoordinates = coordinates.slice(1); // Remove the warehouse location
-    const clusterAssignments = clusterAddresses(deliveryCoordinates, numClusters);
-    console.log("###")
-    console.log(deliveryCoordinates)
-    console.log(clusterAssignments)
-    // Step 3: Optimize the route for each cluster
-  // Assume warehouseLocation is defined somewhere in your code, e.g.,
-  // const warehouseLocation = { latitude: 38.8425854, longitude: -77.270331 };
 
-  const uniqueClusterIds = [...new Set(clusterAssignments)];
-  const optimizedRoutes = await Promise.all(uniqueClusterIds.map(clusterId => 
-    optimizeRouteForCluster(clusterId, clusterAssignments, deliveryCoordinates, geocodedAddresses, warehouseLocation)
-  ));
+    const addressToGeocodeMap = new Map();
+    geocodedAddresses.forEach((geocodeResult, index) => {
+      if (geocodeResult.length > 0) {
+        const originalAddress = addressesToGeocode[index];
+        addressToGeocodeMap.set(originalAddress, geocodeResult[0]);
+      }
+    });
 
+    const coordinates = [warehouseCoordinates, ...geocodedAddresses.map(addr => addr.length > 0 ? [addr[0].latitude, addr[0].longitude] : [undefined, undefined])];
+    const clusterAssignments = clusterAddresses(coordinates.slice(1), numClusters);
 
-    // Respond with the optimized routes
-    res.json({ optimizedRoutes });
+    console.log("------------------------------------");
+    addressesToGeocode.forEach((address, index) => {
+      const coord = coordinates[index];
+      const clusterNumber = clusterAssignments[index];
+      console.log(`Address: ${address}, Coordinates: ${coord}, Cluster Number: ${clusterNumber}`);
+    });
+    console.log("------------------------------------");
+
+    const uniqueClusterIds = [...new Set(clusterAssignments)];
+    const optimizedRoutes = await Promise.all(uniqueClusterIds.map(clusterId => 
+      optimizeRouteForCluster(clusterId, clusterAssignments, coordinates.slice(1), geocodedAddresses, warehouseCoordinates, addressToGeocodeMap)
+    ));
+
+    const optimizedRoutesWithOrders = optimizedRoutes.map(route => {
+      return route.map(address => {
+        const order = orders.find(o => o.deliveryAddress === address);
+        return order || null;
+      }).filter(order => order !== null);
+    });
+
+    res.json({ optimizedRoutes: optimizedRoutesWithOrders });
   } catch (error) {
     console.error('Failed to optimize routes:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+
 
 
 module.exports = router;

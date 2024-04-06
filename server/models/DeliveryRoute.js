@@ -1,0 +1,26 @@
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+
+const deliveryRouteSchema = new Schema({
+  clusterId: Number,
+  driverId: { type: Schema.Types.ObjectId, ref: 'Driver' }, // Assuming you have a Driver model
+  status: { type: String, default: 'Scheduled' },
+  createdAt: { type: Date, default: Date.now },
+  assignedAt: Date,
+  startTime: Date,
+  endTime: Date,
+  notes: String,
+  stops: [{
+    stopNumber: Number,
+    address: String,
+    deliveryDate: Date,
+    dropOffTime: Date,
+    orderId: { type: Schema.Types.ObjectId, ref: 'Order' },
+    status: { type: String, default: 'Scheduled' },
+  }],
+});
+
+// Here you might include any middleware (pre/post hooks) or methods relevant to the route
+
+const Route = mongoose.model('DeliveryRoute', deliveryRouteSchema, 'deliveryRoutes');
+module.exports = Route;

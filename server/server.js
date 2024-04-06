@@ -18,6 +18,7 @@ const orderRoutes = require('./routes/orders');
 const driverRoutes = require('./routes/drivers');
 const userRoutes = require('./routes/users');
 const optimizeDeliveries= require('./routes/optimize-deliveries');
+const deliveryRoutes= require('./routes/deliveryRoutes');
 
 app.use('/api/farms', farmRoutes);
 app.use('/api/items', itemRoutes);
@@ -25,6 +26,8 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/drivers', driverRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/optimize-deliveries', optimizeDeliveries);
+app.use('/api/deliveryRoutes', deliveryRoutes);
+
 
 
 app.listen(port, () => {

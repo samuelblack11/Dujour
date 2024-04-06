@@ -10,6 +10,10 @@ import OrderManagement from './pages/OrderManagement';
 import RouteOptimization from './pages/RouteOptimization';
 import DriverManagement from './pages/DriverManagement';
 import SettingsSupport from './pages/SettingsSupport';
+import SupplierScheduling from './pages/SupplierScheduling';
+import OrderSortation from './pages/OrderSortation';
+import OnRoadOverview from './pages/OnRoadOverview';
+
 import Login from './pages/Login';
 export const AuthContext = createContext(null);
 
@@ -27,10 +31,13 @@ function ButtonGrid() {
         <Link to="/my-orders"><button className="dashboard-button">My Orders</button></Link>
         {user.role === 'admin' && (
           <>
+            <Link to="/supplier-scheduling"><button className="dashboard-button">Supplier Scheduling</button></Link>
+            <Link to="/menu-management"><button className="dashboard-button">Menu Management</button></Link>
             <Link to="/order-management"><button className="dashboard-button">Order Management</button></Link>
             <Link to="/route-optimization"><button className="dashboard-button">Route Optimization</button></Link>
-            <Link to="/menu-management"><button className="dashboard-button">Menu Management</button></Link>
             <Link to="/driver-management"><button className="dashboard-button">Driver Management</button></Link>
+            <Link to="/order-sortation"><button className="dashboard-button">Order Sortation</button></Link>
+            <Link to="/onroad-overview"><button className="dashboard-button">On Road Overview</button></Link>
             {/* <Link to="/operations-overview"><button className="dashboard-button">Operations Overview</button></Link>*/}
             {/* <Link to="/analytics-reporting"><button className="dashboard-button">Analytics & Reporting</button></Link>*/}
           </>
@@ -148,6 +155,9 @@ function App() {
                     <Route path="/order-management" element={<OrderManagement mode="allOrders" />} />
                     <Route path="/route-optimization" element={<RouteOptimization />} />
                     <Route path="/driver-management" element={<DriverManagement />} />
+                    <Route path="/supplier-scheduling" element={<SupplierScheduling />} />
+                    <Route path="/order-sortation" element={<OrderSortation />} />
+                    <Route path="/onroad-overview" element={<OnRoadOverview />} />
                   </>
                 )}
                 <Route path="/build-order" element={<BuildOrder />} />

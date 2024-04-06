@@ -6,116 +6,104 @@ const RouteOptimization = () => {
     const [selectedDate, setSelectedDate] = useState('');
     const [orders, setOrders] = useState([]);
     const [selectedOrders, setSelectedOrders] = useState([]);
-    const [numClusters, setNumClusters] = useState(2); // Starting point for cluster count
+    const [numClusters, setNumClusters] = useState(2);
+    const [optimizedRoutes, setOptimizedRoutes] = useState([]);
 
-    // Fetch orders for the selected date
+    // Combine fetching orders and updating selected objects into a single useEffect
     useEffect(() => {
-        if (selectedDate) {
-            fetchOrdersForDate(selectedDate);
-        }
+        const fetchOrdersForDate = async () => {
+            if (!selectedDate) return;
+            try {
+                const { data } = await axios.get(`/api/orders?date=${selectedDate}`);
+                setOrders(data);
+                setSelectedOrders([]);
+            } catch (error) {
+                console.error("Error fetching orders:", error);
+            }
+        };
+        fetchOrdersForDate();
     }, [selectedDate]);
 
-    const fetchOrdersForDate = async (date) => {
-        try {
-            const response = await axios.get('/api/orders');
-            const filteredOrders = response.data.filter(order =>
-                new Date(order.deliveryDate).toLocaleDateString() === new Date(date).toLocaleDateString()
-            );
-            setOrders(filteredOrders);
-            // Reset selections on date change
-            setSelectedOrders([]);
-        } catch (error) {
-            console.error("Error fetching orders", error);
-        }
-    };
+    // Simplify form handlers by removing redundant code
+    const handleChange = (setter) => (e) => setter(e.target.value);
 
-    const handleDateChange = (e) => {
-        setSelectedDate(e.target.value);
-    };
+    // Submit handler simplified with async/await and direct mapping
+const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    const handleNumClustersChange = (e) => {
-        setNumClusters(e.target.value);
-    };
-
-    const handleOrderSelectionChange = (orderId) => {
-        // Logic to mark an order as selected or not for optimization
-        setSelectedOrders(prev => {
-            if (prev.includes(orderId)) {
-                return prev.filter(id => id !== orderId);
-            } else {
-                return [...prev, orderId];
-            }
+    // Use all orders displayed for the selected date
+    try {
+        const { data } = await axios.post('/api/optimize-deliveries', {
+            orders, // Sending all fetched orders
+            numClusters,
+            warehouseLocation: "9464 Main St, FairFax, VA 22031"
         });
-    };
 
-    const WAREHOUSE_LOCATION = "9464 Main St, FairFax, VA 22031"
-    const [clusters, setClusters] = useState([]); // Add this state to store the clusters
-    const [optimizedRoutes, setOptimizedRoutes] = useState([]); // Add this state to store the clusters
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const selectedOrderObjects = selectedOrders.map(orderId => orders.find(order => order._id === orderId));
-        const deliveryAddresses = selectedOrderObjects.map(order => order.deliveryAddress);
+        // Assuming the backend processes this and returns optimized routes
+        setOptimizedRoutes(data.optimizedRoutes || []);
+    } catch (error) {
+        console.error("Error optimizing routes:", error);
+        setOptimizedRoutes([]);
+    }
+};
 
-        try {
-            console.log("****");
-            const response = await axios.post('/api/optimize-deliveries', {
-                deliveryAddresses,
-                numClusters,
-                warehouseLocation: WAREHOUSE_LOCATION
-            });
-            console.log("Optimized Routes:", response.data.optimizedRoutes);
-            // Validate response format
-            if (response.data.optimizedRoutes && Array.isArray(response.data.optimizedRoutes)) {
-                setOptimizedRoutes(response.data.optimizedRoutes);
-            } else {
-                console.error("Invalid or missing 'optimizedRoutes' data in response");
-                setOptimizedRoutes([]); // Handle the case where no valid routes are returned
-            }
-        } catch (error) {
-            console.error("Error optimizing routes", error);
-            setOptimizedRoutes([]); // Ensure clusters is reset to avoid the error
-        }
-    };
+// Assuming the backend sends an array of arrays of orders as optimized routes
+const flatRoutes = optimizedRoutes.flatMap((route, clusterIndex) =>
+  route.map((order, index) => ({
+    stopNumber: index + 1,
+    clusterId: clusterIndex + 1,
+    address: order.deliveryAddress, // Directly using the order object
+  }))
+);
 
-    const ordersWithSelection = orders.map(order => ({
-        ...order,
-        isSelected: selectedOrders.includes(order._id)
-    }));
 
     const orderTableColumns = [
-    { Header: 'Order Number', accessor: 'orderNumber' },
-    { Header: 'Customer Email', accessor: 'customerEmail' },
-    { Header: 'Delivery Address', accessor: 'deliveryAddress' },
-    {
-        Header: 'Select',
-        accessor: '_id',
-        Cell: ({ row, handleOrderSelectionChange }) => (
-            <input
-                type="checkbox"
-                checked={row.isSelected}
-                onChange={() => handleOrderSelectionChange(row._id)}
-            />
-        )
-    }
-];
+        { Header: 'Order Number', accessor: 'orderNumber' },
+        { Header: 'Customer Email', accessor: 'customerEmail' },
+        { Header: 'Delivery Address', accessor: 'deliveryAddress' },
+        // Add more columns as needed
+    ];
 
-const getOrderTableColumns = (handleOrderSelectionChange) => [
-    { Header: 'Order Number', accessor: 'orderNumber' },
-    { Header: 'Customer Email', accessor: 'customerEmail' },
-    { Header: 'Delivery Address', accessor: 'deliveryAddress' },
-    {
-        Header: 'Select',
-        accessor: '_id',
-        Cell: ({ row }) => (
-            <input
-                type="checkbox"
-                checked={row.isSelected}
-                onChange={() => handleOrderSelectionChange(row._id)}
-            />
-        )
-    }
-];
+    // Only define columns once, if they do not change
+    const routeTableColumns = [
+        { Header: 'Cluster ID', accessor: 'clusterId' },
+        { Header: 'Stop Number', accessor: 'stopNumber' },
+        { Header: 'Address', accessor: 'address' },
+    ];
+
+    const handleSubmitRoutePlan = async () => {
+        try {
+            // Construct the payload according to your backend expectations
+            const selectedDateTime = new Date(`${selectedDate}T06:00:00`);
+            const estOffset = 5 * 60 * 60 * 1000; // UTC-5 for EST
+            const estTime = new Date(selectedDateTime.getTime() - estOffset);
+            const startTimeIso = estTime.toISOString();
+
+            const routes = optimizedRoutes.map((route, index) => ({
+                clusterId: index,
+                stops: route.map((stop, stopIndex) => ({
+                    stopNumber: stopIndex + 1,
+                    address: stop.address,
+                    // Include other necessary properties
+                })),
+                // Define startTime or other properties as needed
+                startTime: startTimeIso
+            }));
+
+            await axios.post('/api/deliveryRoutes', { routes }); // Adjust the URL as necessary
+            alert('Route plan submitted successfully.');
+            // Optionally clear routes after submission
+            // setOptimizedRoutes([]);
+        } catch (error) {
+            console.error('Error submitting route plan:', error);
+            alert('Failed to submit route plan.');
+        }
+    };
+
+    const handleClearRoutes = () => {
+        setOptimizedRoutes([]); // Reset optimized routes
+    };
 
 
 return (
@@ -128,54 +116,42 @@ return (
                     type="date"
                     id="dateSelect"
                     value={selectedDate}
-                    onChange={handleDateChange}
+                    onChange={handleChange(setSelectedDate)}
                 />
             </div>
-
             <div className="form-group">
                 <label htmlFor="numClusters">Number of Clusters:</label>
                 <input
                     type="number"
                     id="numClusters"
                     value={numClusters}
-                    onChange={handleNumClustersChange}
+                    onChange={handleChange(setNumClusters)}
                     min="1"
                 />
             </div>
-
             <button type="submit">Optimize Routes</button>
         </form>
 
         {orders.length > 0 && (
-            <div>
-                <h3>Select Orders for Route Optimization</h3>
-                <GenericTable
-                    data={ordersWithSelection}
-                    columns={getOrderTableColumns(handleOrderSelectionChange)}
-                    handleOrderSelectionChange={handleOrderSelectionChange}
-                />
-            </div>
+            <GenericTable
+                data={orders} // Display all orders without selection checkboxes
+                columns={orderTableColumns} // Define columns as needed, excluding selection logic
+            />
         )}
+        <h2>Route Details</h2>
 
-        {/* Display Optimized Clusters and Their Routes */}
-        {clusters.length > 0 && (
-            <div>
-                <h3>Optimized Route Clusters</h3>
-                {clusters.map(cluster => (
-                    <div key={cluster.clusterId}>
-                        <h4>Cluster {cluster.clusterId}</h4>
-                        <ul>
-                            {cluster.addresses.map((address, index) => (
-                                <li key={index}>{address}</li>
-                            ))}
-                        </ul>
-                    </div>
-                ))}
-            </div>
-        )}
-    </div>
-);
-
+            {optimizedRoutes.length > 0 && (
+                <>
+                    <GenericTable
+                        data={flatRoutes}
+                        columns={routeTableColumns}
+                    />
+                    <button type="submit-btn" onClick={handleSubmitRoutePlan}>Submit Route Plan</button>
+                    <button type="submit-btn" onClick={handleClearRoutes}>Clear</button>
+                </>
+            )}
+        </div>
+    );
 };
 
 export default RouteOptimization;
