@@ -70,9 +70,17 @@ async function registerUser(email, password, role) {
   } catch (error) {
     // More nuanced error handling
     let errorMessage = 'Signup failed due to an unexpected error';
-    if (error.response && error.response.data && error.response.data.message) {
-      // Use the server-provided error message if available
-      errorMessage = error.response.data.message;
+    console.log("-----")
+    console.log(error.response)
+    if (error.response) {
+      // Include more error details if available and in development mode
+      const isDevelopment = process.env.NODE_ENV === 'development'; // This might need adjustment based on your environment setup
+      if (error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+      if (isDevelopment && error.response.data && error.response.data.error) {
+        errorMessage += ` - Details: ${error.response.data.error}`;
+      }
     }
     throw new Error(errorMessage);
   }

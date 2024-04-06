@@ -2,7 +2,7 @@
 import React from 'react';
 
 export const GenericTable = ({ data, columns, handleEditClick, deleteCargo }) => {
-  console.log("Data in GenericTable:", data);
+  //console.log("Data in GenericTable:", data);
   return (
     <table>
       <thead>

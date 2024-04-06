@@ -133,6 +133,15 @@ body {
     margin-bottom: 10px;
 }
 
+.settings-button {
+  background-color: var(--button-color-primary);
+  padding-right: 100 px;
+}
+
+.settings-button:hover {
+  background-color: var(--button-color-primary-hover);
+}
+
 #background-video {
   position: fixed;
   right: 0;

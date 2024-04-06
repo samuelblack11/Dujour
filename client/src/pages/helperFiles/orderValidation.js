@@ -6,12 +6,15 @@ export const validateEmail = (email) => {
 };
 
 export const validateDeliveryAddress = (address) => {
-  // This is a very basic format check that looks for patterns common in addresses:
-  // "123 Main St, City, ST 12345" or "123 Main St, City Name, ST"
-  // It checks for a number (street number) followed by text (street name),
-  // then a comma, then more text (city), another comma, and then state abbreviation and optional zip code.
-  // This is a simplistic and US-centric pattern and should be adjusted according to your specific needs.
-  const regex = /^\d+\s+[A-Za-z\s]+,\s+[A-Za-z\s]+,\s+[A-Z]{2}\s*\d*$/;
+  // This regex pattern specifically looks for an address in the format:
+  // "2300 Clarendon Blvd, Arlington, VA 22201"
+  // It checks for:
+  // 1. A street number: one or more digits.
+  // 2. A street name: can include alphabetic characters, spaces, and possibly descriptors like "Blvd", "St", "Ave", etc.
+  // 3. A city name: alphabetic characters and possibly spaces.
+  // 4. A state abbreviation: exactly two uppercase letters.
+  // 5. A ZIP code: exactly five digits.
+  const regex = /^\d+\s+[A-Za-z\s]+\w+,\s+[A-Za-z\s]+,\s+[A-Z]{2}\s\d{5}$/;
   return regex.test(address.trim());
 };
 
