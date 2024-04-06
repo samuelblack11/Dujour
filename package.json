@@ -11,6 +11,7 @@
     "jsonwebtoken": "^9.0.2",
     "ml-kmeans": "^6.0.0",
     "mongoose": "^8.1.0",
-    "node-geocoder": "^4.3.0"
+    "node-geocoder": "^4.3.0",
+    "node-kmeans": "^1.1.9"
   }
 }

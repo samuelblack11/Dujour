@@ -50,6 +50,7 @@ const RouteOptimization = () => {
 
     const WAREHOUSE_LOCATION = "9464 Main St, FairFax, VA 22031"
     const [clusters, setClusters] = useState([]); // Add this state to store the clusters
+    const [optimizedRoutes, setOptimizedRoutes] = useState([]); // Add this state to store the clusters
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -58,24 +59,22 @@ const RouteOptimization = () => {
 
         try {
             console.log("****");
-
             const response = await axios.post('/api/optimize-deliveries', {
                 deliveryAddresses,
                 numClusters,
                 warehouseLocation: WAREHOUSE_LOCATION
             });
-
-            console.log("Optimized Routes:", response.data);
+            console.log("Optimized Routes:", response.data.optimizedRoutes);
             // Validate response format
-            if (response.data.clusters && Array.isArray(response.data.clusters)) {
-                setClusters(response.data.clusters);
+            if (response.data.optimizedRoutes && Array.isArray(response.data.optimizedRoutes)) {
+                setOptimizedRoutes(response.data.optimizedRoutes);
             } else {
-                console.error("Invalid or missing 'clusters' data in response");
-                setClusters([]); // Reset or keep clusters empty to avoid errors
+                console.error("Invalid or missing 'optimizedRoutes' data in response");
+                setOptimizedRoutes([]); // Handle the case where no valid routes are returned
             }
         } catch (error) {
             console.error("Error optimizing routes", error);
-            setClusters([]); // Ensure clusters is reset to avoid the error
+            setOptimizedRoutes([]); // Ensure clusters is reset to avoid the error
         }
     };
 

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const NodeGeocoder = require('node-geocoder');
-const Kmeans = require('ml-kmeans');
+const { kmeans } = require('ml-kmeans');
 
 // Example using Express.js
 const maxRouteTime = 2 * 60 * 60; // Maximum route time in seconds (2 hours)
@@ -20,41 +20,68 @@ async function geocodeAddresses(addresses) {
 }
 
 function clusterAddresses(coordinates, numClusters) {
-  const numClusterOptions = { k: numClusters }; // Specify the number of clusters
-  const result = Kmeans(coordinates, numClusterOptions);
+  const result = kmeans(coordinates, numClusters);
     console.log("clusterAddresses called....")
   return result.clusters; // This will give you the index of the cluster for each address
 }
 
-async function optimizeRouteForCluster(clusterCoordinates) {
-  // Assuming you have a function to call your chosen route optimization API
-  const optimizedRoute = await callRouteOptimizationAPI(clusterCoordinates);
-  console.log("optimizzedRoutesForCluster called....")
-  return optimizedRoute;
+
+function calculateDistance(point1, point2) {
+  return Math.sqrt(Math.pow(point1.latitude - point2.latitude, 2) + Math.pow(point1.longitude - point2.longitude, 2));
 }
+
+// Example adjustment to include address information
+function optimizeRouteForCluster(clusterId, clusterAssignments, deliveryCoordinates, geocodedAddresses, warehouseLocation) {
+  // Filter deliveryCoordinates to include only those in the current cluster
+  const coordinatesForThisCluster = deliveryCoordinates.filter((_, index) => clusterAssignments[index] === clusterId);
+
+  // Sort the coordinates by distance to the warehouse
+  const sortedCoordinates = coordinatesForThisCluster.sort((a, b) => {
+    const distanceA = calculateDistance(warehouseLocation, a);
+    const distanceB = calculateDistance(warehouseLocation, b);
+    return distanceA - distanceB; // Ascending order
+  });
+
+  // Map sorted coordinates back to addresses
+  const sortedAddresses = sortedCoordinates.map(coord => {
+    const addressIndex = deliveryCoordinates.findIndex(deliveryCoord => deliveryCoord[0] === coord[0] && deliveryCoord[1] === coord[1]);
+    return geocodedAddresses[addressIndex + 1][0].formattedAddress; // +1 to account for the warehouse address being the first
+  });
+
+  return sortedAddresses;
+}
+
 
 router.post('/', async (req, res) => {
   const { deliveryAddresses, numClusters, warehouseLocation } = req.body;
-console.log("&&&")
   try {
     // Step 1: Geocode all addresses, including the warehouse
     const addressesToGeocode = [warehouseLocation, ...deliveryAddresses];
     const geocodedAddresses = await geocodeAddresses(addressesToGeocode);
-    console.log("^^^")
-    console.log(geocodedAddresses)
     // Extract just the coordinates for clustering
-    const coordinates = geocodedAddresses.map(addr => [addr.latitude, addr.longitude]);
-
+    // Assuming you always want to use the first geocoding result for each address
+    const coordinates = geocodedAddresses.map(addr => {
+    if (addr.length > 0) { // Check if there are any geocoding results
+      return [addr[0].latitude, addr[0].longitude];
+    } else {
+       return [undefined, undefined]; // Or handle this case differently
+    }
+   });
     // Step 2: Cluster the delivery addresses (excluding the warehouse, which is at index 0)
     const deliveryCoordinates = coordinates.slice(1); // Remove the warehouse location
-    const clusters = clusterAddresses(deliveryCoordinates, numClusters);
+    const clusterAssignments = clusterAddresses(deliveryCoordinates, numClusters);
     console.log("###")
-    console.log(clusters)
-
+    console.log(deliveryCoordinates)
+    console.log(clusterAssignments)
     // Step 3: Optimize the route for each cluster
-    const optimizedRoutes = await Promise.all(clusters.map(cluster => 
-      optimizeRouteForCluster(cluster)
-    ));
+  // Assume warehouseLocation is defined somewhere in your code, e.g.,
+  // const warehouseLocation = { latitude: 38.8425854, longitude: -77.270331 };
+
+  const uniqueClusterIds = [...new Set(clusterAssignments)];
+  const optimizedRoutes = await Promise.all(uniqueClusterIds.map(clusterId => 
+    optimizeRouteForCluster(clusterId, clusterAssignments, deliveryCoordinates, geocodedAddresses, warehouseLocation)
+  ));
+
 
     // Respond with the optimized routes
     res.json({ optimizedRoutes });
