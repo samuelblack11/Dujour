@@ -16,6 +16,8 @@ const deliveryRouteSchema = new Schema({
     deliveryDate: Date,
     dropOffTime: Date,
     orderId: { type: Schema.Types.ObjectId, ref: 'Order' },
+    customerEmail: String, // Added to store the customer's email address
+    orderNumber: String, // Added to store the order number
     status: { type: String, default: 'Scheduled' },
   }],
 });

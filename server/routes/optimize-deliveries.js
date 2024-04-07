@@ -112,7 +112,6 @@ router.post('/', async (req, res) => {
         const order = orders.find(o => o.deliveryAddress === address);
         console.log("Found order:", order); // Verify the order structure
         console.log(order.customerEmail)
-        console.log(order.orderNumber)
         // If a matching order is found, return an object with the desired details
         if (order) {
             return {

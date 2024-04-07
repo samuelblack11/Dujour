@@ -38,11 +38,38 @@ const RouteOptimization = () => {
             }
         }
     };
-
     if (selectedDate) {
         fetchData();
     }
 }, [selectedDate]);
+
+    useEffect(() => {
+        fetchDrivers();
+    }, []); // Fetch drivers when the component mounts
+
+
+    useEffect(() => {
+    const selectedDriversInit = {};
+    routeDetails.routes.forEach((route, index) => {
+        if (route.driverId) {
+            selectedDriversInit[index] = route.driverId;
+        }
+    });
+    setSelectedDrivers(selectedDriversInit);
+}, [routeDetails]);
+
+
+
+  const fetchDrivers = async () => {
+    try {
+      const response = await axios.get('/api/drivers');
+      console.log("DRIVERS....")
+      console.log(response.data)
+      setDrivers(response.data);
+    } catch (error) {
+      console.error('Error fetching drivers:', error);
+    }
+  };
 
 
 const checkForExistingRoutePlan = async (selectedDate) => {
@@ -74,7 +101,7 @@ const handleSubmit = async (e) => {
             warehouseLocation: "9464 Main St, FairFax, VA 22031"
         });
         console.log("???")
-        console.log(data)
+        console.log(data.optimizedRoutes)
         // Assuming the backend processes this and returns optimized routes
         setOptimizedRoutes(data.optimizedRoutes || []);
     } catch (error) {
@@ -122,9 +149,9 @@ const flatRoutes = optimizedRoutes.flatMap((route, clusterIndex) =>
                 stops: route.map((stop, stopIndex) => ({
                     stopNumber: stopIndex + 1,
                     address: stop.address,
-                    // Include other necessary properties
+                    customerEmail: stop.customerEmail,
+                    orderNumber: stop.orderNumber
                 })),
-                // Define startTime or other properties as needed
                 startTime: startTimeIso
             }));
 
@@ -143,22 +170,56 @@ const flatRoutes = optimizedRoutes.flatMap((route, clusterIndex) =>
     };
 
 
-// Driver assignment dropdown component
-const DriverDropdown = ({ drivers, onDriverAssigned }) => (
-    <select onChange={(e) => onDriverAssigned(e.target.value)}>
+const DriverDropdown = ({ drivers, selectedDriverId, onDriverAssigned, routeIndex }) => (
+        <select value={selectedDriverId || ''} onChange={(e) => onDriverAssigned(routeIndex, e.target.value)}>
         <option value="">Select a driver</option>
-        {drivers.map(driver => (
-            <option key={driver.id} value={driver.id}>{driver.name}</option>
+        {drivers.map((driver) => (
+            <option key={driver._id} value={driver._id}>{driver.Name}</option>
         ))}
     </select>
 );
 
 const handleDriverSelection = (routeIndex, driverId) => {
-    setSelectedDrivers({
-        ...selectedDrivers,
+    console.log(`Route Index: ${routeIndex}, Driver ID: ${driverId}`); // Debugging line
+    setSelectedDrivers(prev => ({
+        ...prev,
         [routeIndex]: driverId,
-    });
+    }));
 };
+
+function reformatDate(selectedDate) {
+    const dateParts = selectedDate.split('-'); // Split the date by '-'
+    const year = dateParts[0].substr(2); // Get the last two digits of the year
+    const month = dateParts[1]; // Month
+    const day = dateParts[2]; // Day
+
+    // Construct the new date format as 'mm/dd/yy'
+    return `${month}/${day}/${year}`;
+}
+
+const handleConfirmDriverAssignments = async () => {
+    // Loop through each route and update it with the assigned driver
+    const updatedRoutes = routeDetails.routes.map((route, index) => ({
+        ...route,
+        driverId: selectedDrivers[index] // Assign the selected driver ID to the route
+    }));
+
+    try {
+        // Assuming you have an endpoint that accepts updated routes for a specific date
+        await axios.put('/api/deliveryRoutes/updateDrivers', {
+            date: selectedDate,
+            updatedRoutes
+        });
+
+        alert('Driver assignments confirmed successfully.');
+
+        // Optionally refresh data here if needed
+    } catch (error) {
+        console.error('Error confirming driver assignments:', error);
+        alert('Failed to confirm driver assignments.');
+    }
+};
+
 
   // Render method
     return (
@@ -209,16 +270,18 @@ const handleDriverSelection = (routeIndex, driverId) => {
             )}
 {routePlanExists && Array.isArray(routeDetails.routes) && routeDetails.routes.length > 0 && (
     <>
-        <h2>Route Plan for {selectedDate}</h2>
+        <h2>Route Plan for {reformatDate(selectedDate) }</h2>
+        <button onClick={handleConfirmDriverAssignments}>Confirm Driver Assignments</button>
         {routeDetails.routes.map((route, routeIndex) => (
             <div key={routeIndex}>
                 <h3>Route {routeIndex + 1}</h3>
-                {/* Driver dropdown for the entire route */}
-                <DriverDropdown
-                    drivers={drivers}
-                    onDriverAssigned={(driverId) => handleDriverSelection(routeIndex, driverId)}
-                />
- <table>
+            <DriverDropdown
+                drivers={drivers}
+                selectedDriverId={selectedDrivers[routeIndex]}
+                onDriverAssigned={handleDriverSelection}
+                routeIndex={routeIndex}
+            />
+            <table>
             <thead>
                 <tr>
                     <th>Stop Number</th>
@@ -246,7 +309,6 @@ const handleDriverSelection = (routeIndex, driverId) => {
         </div>
     );
 };
-
 
 
 export default RouteOptimization;
