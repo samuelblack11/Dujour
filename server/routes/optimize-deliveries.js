@@ -106,21 +106,34 @@ router.post('/', async (req, res) => {
       optimizeRouteForCluster(clusterId, clusterAssignments, coordinates.slice(1), geocodedAddresses, warehouseCoordinates, addressToGeocodeMap)
     ));
 
-    const optimizedRoutesWithOrders = optimizedRoutes.map(route => {
-      return route.map(address => {
+  const optimizedRoutesWithOrders = optimizedRoutes.map(route => {
+    return route.map(address => {
+        // Find the order that matches this address
         const order = orders.find(o => o.deliveryAddress === address);
-        return order || null;
-      }).filter(order => order !== null);
-    });
+        console.log("Found order:", order); // Verify the order structure
+        console.log(order.customerEmail)
+        console.log(order.orderNumber)
+        // If a matching order is found, return an object with the desired details
+        if (order) {
+            return {
+                customerEmail: order.customerEmail,
+                orderNumber: order.orderNumber,
+                address: order.deliveryAddress // Assuming you still want to include the address
+            };
+        }
+        
+        return null; // Return null if no matching order is found
+    }).filter(detail => detail !== null); // Filter out any nulls to ensure only valid stops are included
 
-    res.json({ optimizedRoutes: optimizedRoutesWithOrders });
+});
+console.log("Optimized routes with order details:", optimizedRoutesWithOrders);
+
+res.json({ optimizedRoutes: optimizedRoutesWithOrders });
+
   } catch (error) {
     console.error('Failed to optimize routes:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
-
-
 
 module.exports = router;
