@@ -12,6 +12,7 @@ const RouteOptimization = () => {
     const [drivers, setDrivers] = useState([]); // Assuming you fetch this from somewhere
     const [routeDetails, setRouteDetails] = useState({ routes: [] });
     const [selectedDrivers, setSelectedDrivers] = useState({}); // {routeIndex: driverId}
+    const [routingMethod, setRoutingMethod] = useState('kmeans'); // Default to 'kmeans'
 
     useEffect(() => {
         const fetchData = async () => {
@@ -98,7 +99,8 @@ const handleSubmit = async (e) => {
         const { data } = await axios.post('/api/optimize-deliveries', {
             orders, // Sending all fetched orders
             numClusters,
-            warehouseLocation: "9464 Main St, FairFax, VA 22031"
+            warehouseLocation: "9464 Main St, FairFax, VA 22031",
+            method: routingMethod
         });
         console.log("???")
         console.log(data.optimizedRoutes)
@@ -109,6 +111,25 @@ const handleSubmit = async (e) => {
         setOptimizedRoutes([]);
     }
 };
+
+const handleDeleteRoutePlan = async () => {
+    if (!selectedDate) {
+        alert('Please select a date to delete the route plan.');
+        return;
+    }
+    try {
+        await axios.delete(`/api/deliveryRoutes?date=${selectedDate}`);
+        alert('Route plan deleted successfully.');
+        // Reset state or refresh data as necessary
+        setRoutePlanExists(false);
+        setRouteDetails({ routes: [] }); // Clear existing route details
+        fetchOrdersForDate(selectedDate); // Refetch orders if needed, or handle UI updates
+    } catch (error) {
+        console.error('Error deleting route plan:', error);
+        alert('Failed to delete route plan.');
+    }
+};
+
 
 const flatRoutes = optimizedRoutes.flatMap((route, clusterIndex) =>
   route.map((stop, index) => ({
@@ -247,8 +268,19 @@ const handleConfirmDriverAssignments = async () => {
                                 min="1"
                             />
                         </div>
+                        <label htmlFor="routingMethod">Routing Method:</label>
+                        <select
+                            id="routingMethod"
+                            value={routingMethod}
+                            onChange={e => setRoutingMethod(e.target.value)}
+                        >
+                            <option value="kmeans">K-Means</option>
+                            <option value="aco">Ant Colony Optimization (ACO)</option>
+                            <option value="hierarchical">Hierarchical Clustering</option>
+                        </select>
                         <button type="submit">Optimize Routes</button>
                     </>
+
                 )}
             </form>
             {orders.length > 0 && !routePlanExists && (
@@ -268,43 +300,48 @@ const handleConfirmDriverAssignments = async () => {
                     <button onClick={handleClearRoutes}>Clear</button>
                 </>
             )}
-{routePlanExists && Array.isArray(routeDetails.routes) && routeDetails.routes.length > 0 && (
+{
+  routePlanExists && Array.isArray(routeDetails.routes) && routeDetails.routes.length > 0 && (
     <>
-        <h2>Route Plan for {reformatDate(selectedDate) }</h2>
-        <button onClick={handleConfirmDriverAssignments}>Confirm Driver Assignments</button>
-        {routeDetails.routes.map((route, routeIndex) => (
-            <div key={routeIndex}>
-                <h3>Route {routeIndex + 1}</h3>
-            <DriverDropdown
-                drivers={drivers}
-                selectedDriverId={selectedDrivers[routeIndex]}
-                onDriverAssigned={handleDriverSelection}
-                routeIndex={routeIndex}
-            />
-            <table>
+      <h2>Route Plan for {reformatDate(selectedDate)}</h2>
+      <button className="submit-btn" onClick={handleConfirmDriverAssignments}>Confirm Driver Assignments</button>
+      <button className="submit-btn" onClick={handleDeleteRoutePlan}>Delete Route Plan</button>
+      
+      {routeDetails.routes.map((route, routeIndex) => (
+        <div key={routeIndex}>
+          <h3>Route {routeIndex + 1}</h3>
+          <DriverDropdown
+            drivers={drivers}
+            selectedDriverId={selectedDrivers[routeIndex]}
+            onDriverAssigned={(driverId) => handleDriverSelection(routeIndex, driverId)}
+            routeIndex={routeIndex}
+          />
+          <table>
             <thead>
-                <tr>
-                    <th>Stop Number</th>
-                    <th>Address</th>
-                    <th>Customer Email</th>
-                    <th>Order Number</th>
-                </tr>
+              <tr>
+                <th>Stop Number</th>
+                <th>Address</th>
+                <th>Customer Email</th>
+                <th>Order Number</th>
+              </tr>
             </thead>
             <tbody>
-                {route.stops.map((stop, index) => (
-                    <tr key={index}>
-                        <td>{index + 1}</td> {/* Assuming stopNumber is the index + 1 */}
-                        <td>{stop.address}</td>
-                        <td>{stop.customerEmail}</td>
-                        <td>{stop.orderNumber}</td>
-                    </tr>
-                ))}
+              {route.stops.map((stop, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td> {/* Assuming stopNumber is the index + 1 */}
+                  <td>{stop.address}</td>
+                  <td>{stop.customerEmail}</td>
+                  <td>{stop.orderNumber}</td>
+                </tr>
+              ))}
             </tbody>
-        </table>
-            </div>
-        ))}
+          </table>
+        </div>
+      ))}
     </>
-)}
+  )
+}
+
 
         </div>
     );

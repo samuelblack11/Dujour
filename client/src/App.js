@@ -28,16 +28,16 @@ function ButtonGrid() {
     <div className="container">
       <div className="button-grid">
         <Link to="/build-order"><button className="dashboard-button">Build Order</button></Link>
-        <Link to="/my-orders"><button className="dashboard-button">My Orders</button></Link>
+        {/*<Link to="/my-orders"><button className="dashboard-button">My Orders</button></Link>*/}
         {user.role === 'admin' && (
           <>
-            <Link to="/supplier-scheduling"><button className="dashboard-button">Supplier Scheduling</button></Link>
+            {/* <Link to="/supplier-scheduling"><button className="dashboard-button">Supplier Scheduling</button></Link>*/}
             <Link to="/menu-management"><button className="dashboard-button">Menu Management</button></Link>
             <Link to="/order-management"><button className="dashboard-button">Order Management</button></Link>
             <Link to="/route-optimization"><button className="dashboard-button">Route Optimization</button></Link>
             <Link to="/driver-management"><button className="dashboard-button">Driver Management</button></Link>
-            <Link to="/order-sortation"><button className="dashboard-button">Order Sortation</button></Link>
-            <Link to="/onroad-overview"><button className="dashboard-button">On Road Overview</button></Link>
+            {/* <Link to="/order-sortation"><button className="dashboard-button">Order Sortation</button></Link>*/}
+            <Link to="/onroad-overview"><button className="dashboard-button">On Road Tracking</button></Link>
             {/* <Link to="/operations-overview"><button className="dashboard-button">Operations Overview</button></Link>*/}
             {/* <Link to="/analytics-reporting"><button className="dashboard-button">Analytics & Reporting</button></Link>*/}
           </>
@@ -161,7 +161,7 @@ function App() {
                   </>
                 )}
                 <Route path="/build-order" element={<BuildOrder />} />
-                <Route path="/my-orders" element={<OrderManagement mode="myOrders" />} />
+                {/*<Route path="/my-orders" element={<OrderManagement mode="myOrders" />} />*/}
                 <Route path="/settings-support" element={<SettingsSupport />} />
               </>
             ) : (

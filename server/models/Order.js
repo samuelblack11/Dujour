@@ -7,7 +7,11 @@ const orderSchema = new Schema({
   customerEmail: String,
   deliveryAddress: String,
   deliveryDate: Date,
-  status: { type: String, default: 'draft' },
+  status: { 
+    type: String, 
+    enum: ['Unassembled', 'Pending Driver Pickup', 'Out for Delivery', 'Delivered', 'Damaged', 'Unable to Deliver'],
+    default: 'Unassembled' // or choose the most appropriate default status
+  },  
   items: [{
     //item: { type: Schema.Types.ObjectId, ref: 'Product' },
     itemName: String,

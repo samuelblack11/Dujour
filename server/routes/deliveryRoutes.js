@@ -56,6 +56,36 @@ router.post('/', async (req, res) => {
   }
 });
 
+// DELETE endpoint to remove all routes for a specific date
+router.delete('/deliveryRoutes', async (req, res) => {
+    const { date } = req.query; // Date should be passed as a query parameter
+
+    try {
+        // Convert the date to the same format and timezone as used in your GET method
+        const startOfEstDay = new Date(`${date}T00:00:00-05:00`); // Start of day in EST
+        const endOfEstDay = new Date(`${date}T23:59:59-05:00`); // End of day in EST
+
+        // Delete routes that start within the specified day
+        const result = await DeliveryRoute.deleteMany({
+            startTime: {
+                $gte: startOfEstDay,
+                $lte: endOfEstDay
+            }
+        });
+
+        if (result.deletedCount > 0) {
+            res.status(200).json({ message: 'Delivery routes deleted successfully.' });
+        } else {
+            res.status(404).json({ message: 'No routes found to delete.' });
+        }
+    } catch (error) {
+        console.error('Failed to delete delivery routes:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
+
 // Assuming you have a field like `date` or you use `startTime` in your schema to store the date
 router.get('/', async (req, res) => {
     const { date } = req.query; // Get the date from query parameters
