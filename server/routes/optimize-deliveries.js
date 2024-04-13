@@ -3,7 +3,7 @@ const router = express.Router();
 const NodeGeocoder = require('node-geocoder');
 const { kmeans } = require('ml-kmeans');
 const hclust = require('ml-hclust');
-//const ACO = require('ant-colony-optimization/src/ants');
+const ACO = require('ant-colony-optimization/src/ants');
 
 // Example using Express.js
 const maxRouteTime = 2 * 60 * 60; // Maximum route time in seconds (2 hours)
@@ -11,17 +11,13 @@ const dropOffTimePerAddress = 4 * 60; // Drop-off time per address in seconds (4
 const pickUpTime = '6:00 AM'; // Constant pickup time
 const loadingTime = 15 * 60; // Loading time in seconds (15 minutes)
 
+// Example using Express.js
 const options = {
-  provider: 'openstreetmap' // Or 'google', 'here', etc., depending on the service
-  // If using a provider that requires an API key, add apiKey: 'YOUR_API_KEY' here
+  provider: 'openstreetmap'
 };
 
 router.post('/', async (req, res) => {
   const { orders, numClusters, warehouseLocation, method } = req.body;
-  console.log(`Orders: ${orders}`)
-  console.log(`NumClusters: ${numClusters}`)
-  console.log(`Warehouse Location: ${warehouseLocation}`)
-  console.log(`Method: ${method}`)
 
   try {
     // Geocode warehouse location
@@ -33,46 +29,21 @@ router.post('/', async (req, res) => {
     // Geocode order delivery addresses
     const addressesToGeocode = orders.map(order => order.deliveryAddress);
     const geocodedAddresses = await geocodeAddresses(addressesToGeocode);
-    const coordinates = [warehouseCoordinates, ...geocodedAddresses.map(addr => ({
+    const coordinates = geocodedAddresses.map(addr => ({
       latitude: addr[0].latitude, longitude: addr[0].longitude
-    }))].filter(coord => coord != null);
+    }));
 
     // Clustering based on selected method
-    const clusterAssignments = clusterAddresses(coordinates, numClusters, method);
-
-    // Map addresses to geocode results
-    const addressToGeocodeMap = new Map();
-    geocodedAddresses.forEach((geocodeResult, index) => {
-      if (geocodeResult.length > 0) {
-        const originalAddress = addressesToGeocode[index];
-        addressToGeocodeMap.set(originalAddress, geocodeResult[0]);
-      }
-    });
+    const clusterAssignments = await clusterAddresses(coordinates, numClusters, method);
 
     // Optimization per cluster
-    // const uniqueClusterIds = [...new Set(clusterAssignments)];
-
-    console.log("Cluster Assignments:", clusterAssignments);
-    const uniqueClusterIds = [...new Set(clusterAssignments)];
-    console.log("Unique Cluster IDs:", uniqueClusterIds);
-
+    const uniqueClusterIds = [...new Set(clusterAssignments)]; // Get unique cluster IDs
     const optimizedRoutes = await Promise.all(uniqueClusterIds.map(clusterId =>
-      optimizeRouteForCluster(clusterId, clusterAssignments, coordinates, geocodedAddresses, warehouseCoordinates, addressToGeocodeMap)
+      optimizeRouteForCluster(clusterId, clusterAssignments, coordinates, orders, warehouseCoordinates)
     ));
 
-    // Building response with order details
-    const optimizedRoutesWithOrders = optimizedRoutes.map(route => {
-      return route.map(address => {
-        const order = orders.find(o => o.deliveryAddress === address);
-        return order ? {
-          customerEmail: order.customerEmail,
-          orderNumber: order.orderNumber,
-          address: order.deliveryAddress
-        } : null;
-      }).filter(detail => detail !== null);
-    });
-
-    console.log("Optimized routes with order details:", optimizedRoutesWithOrders);
+    // Build response with order details
+    const optimizedRoutesWithOrders = optimizedRoutes.filter(route => route.length > 0);
     res.json({ optimizedRoutes: optimizedRoutesWithOrders });
 
   } catch (error) {
@@ -81,104 +52,42 @@ router.post('/', async (req, res) => {
   }
 });
 
-
-const geocoder = NodeGeocoder(options);
 async function geocodeAddresses(addresses) {
+  const geocoder = NodeGeocoder(options);
   return Promise.all(addresses.map(address => geocoder.geocode(address)));
 }
 
 async function clusterAddresses(coordinates, numClusters, method) {
-    if (coordinates.length === 0) {
-        throw new Error("No coordinates to cluster");
-    }
-
-    let clusterAssignments = [];
-    switch (method) {
-        case 'kmeans':
-            const formattedCoordinates = coordinates.map(coord => [coord.latitude, coord.longitude]);
-            console.log("------")
-            console.log(coordinates)
-            console.log(formattedCoordinates)
-            console.log(numClusters)
-
-
-            const kmeansResult = kmeans(formattedCoordinates, numClusters);
-            console.log(kmeansResult);
-            clusterAssignments = kmeansResult.clusters;
-            break;
-
-        case 'aco':
-            try {
-                const path = await findOptimalPathWithACO(coordinates);
-                clusterAssignments = segmentPathIntoClusters(path, numClusters);
-            } catch (error) {
-                console.error("Error in ACO path calculation:", error);
-                throw error; // Throw to be handled by the calling function
-            }
-            break;
-
-        case 'hierarchical':
-            const hclustResult = hierarchicalClusterAddresses(coordinates, numClusters);
-            clusterAssignments = hclustResult;
-            break;
-
-        default:
-            throw new Error('Unsupported clustering method');
-    }
-
-    if (!Array.isArray(clusterAssignments) || clusterAssignments.length === 0) {
-        throw new Error("Failed to generate cluster assignments");
-    }
-
-    return clusterAssignments;
+  switch (method) {
+    case 'kmeans':
+      const points = coordinates.map(coord => [coord.latitude, coord.longitude]);
+      const kmeansResult = kmeans(points, numClusters);
+      return kmeansResult.clusters;
+    case 'aco':
+      const path = await findOptimalPathWithACO(coordinates);
+      return segmentPathIntoClusters(path, numClusters);
+    case 'hierarchical':
+      return hierarchicalClusterAddresses(coordinates, numClusters);
+    default:
+      throw new Error('Unsupported clustering method');
+  }
 }
 
+function optimizeRouteForCluster(clusterId, clusterAssignments, coordinates, orders, warehouseLocation) {
+  const sortedOrders = coordinates
+    .filter((_, index) => clusterAssignments[index] === clusterId)
+    .map((coord, index) => ({ ...orders[index], coord }))
+    .sort((a, b) => calculateDistance(warehouseLocation, a.coord) - calculateDistance(warehouseLocation, b.coord));
 
+  return sortedOrders.map(order => ({
+    customerEmail: order.customerEmail,
+    orderNumber: order.orderNumber,
+    address: order.deliveryAddress
+  }));
+}
 
 function calculateDistance(point1, point2) {
   return Math.sqrt(Math.pow(point1.latitude - point2.latitude, 2) + Math.pow(point1.longitude - point2.longitude, 2));
-}
-
-function optimizeRouteForCluster(clusterId, clusterAssignments, deliveryCoordinates, geocodedAddresses, warehouseLocation, addressToGeocodeMap) {
-  console.log(`Optimizing Cluster: ${clusterId}`);
-  
-  // Filter deliveryCoordinates to include only those in the current cluster
-  const coordinatesForThisCluster = deliveryCoordinates
-    .map((coord, index) => ({ coord, index }))
-    .filter(({ _, index }) => clusterAssignments[index] === clusterId)
-    .map(({ coord }) => coord);
-
-  // Print geocoded addresses for this cluster
-  //console.log(`Geocoded Addresses for this Cluster: ${JSON.stringify(geocodedAddresses)}`);
-  
-  // Print coordinates for this cluster
-  console.log(`Coordinates for this Cluster: ${JSON.stringify(coordinatesForThisCluster)}`);
-
-  // Sort the coordinates by distance to the warehouse
-  const sortedCoordinates = coordinatesForThisCluster.sort((a, b) => {
-    const distanceA = calculateDistance(warehouseLocation, a);
-    const distanceB = calculateDistance(warehouseLocation, b);
-    return distanceA - distanceB; // Ascending order
-  });
-
-  // Print sorted coordinates for this cluster
-  console.log(`Sorted Coordinates for this Cluster: ${JSON.stringify(sortedCoordinates)}`);
-
-// After sorting coordinates for a cluster...
-const sortedAddresses = sortedCoordinates.map(coord => {
-  const geocodeResult = Array.from(addressToGeocodeMap.entries()).find(([_, geoResult]) =>
-    geoResult.latitude === coord[0] && geoResult.longitude === coord[1]
-  );
-
-  return geocodeResult ? geocodeResult[0] : null; // Return the original address
-});
-
-  // Print sorted address for cluster
-  console.log(`Sorted Address for Cluster # ${clusterId}`);
-  console.log(`${sortedAddresses}`);
-  console.log("------------------------------------");
-
-  return sortedAddresses;
 }
 
 // Alternative methods for route optimization below
@@ -208,7 +117,9 @@ function createGraphFromCoordinates(coordinates) {
 async function findOptimalPathWithACO(coordinates) {
     try {
         // Dynamically import the ACO module
-        const ACO = await import('ant-colony-optimization');
+        //const ACO = await import('ant-colony-optimization');
+        //const module = await import('ant-colony-optimization/src/ants.js');
+        //const ACO = module.default;
 
         // Initialize the ACO algorithm with configuration
         const aco = new ACO.default({

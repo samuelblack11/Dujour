@@ -14,6 +14,8 @@ const RouteOptimization = () => {
     const [selectedDrivers, setSelectedDrivers] = useState({}); // {routeIndex: driverId}
     const [routingMethod, setRoutingMethod] = useState('kmeans'); // Default to 'kmeans'
 
+
+
     useEffect(() => {
         const fetchData = async () => {
             const exists = await checkForExistingRoutePlan(selectedDate);
@@ -59,6 +61,9 @@ const RouteOptimization = () => {
     setSelectedDrivers(selectedDriversInit);
 }, [routeDetails]);
 
+useEffect(() => {
+  console.log("Updated Optimized Routes:", optimizedRoutes);
+}, [optimizedRoutes]);
 
 
   const fetchDrivers = async () => {
@@ -278,7 +283,7 @@ const handleConfirmDriverAssignments = async () => {
                             <option value="aco">Ant Colony Optimization (ACO)</option>
                             <option value="hierarchical">Hierarchical Clustering</option>
                         </select>
-                        <button type="submit">Optimize Routes</button>
+                        <button className="submit-btn" type="submit">Optimize Routes</button>
                     </>
 
                 )}
@@ -296,8 +301,8 @@ const handleConfirmDriverAssignments = async () => {
                         data={flatRoutes}
                         columns={routeTableColumns}
                     />
-                    <button onClick={handleSubmitRoutePlan}>Submit Route Plan</button>
-                    <button onClick={handleClearRoutes}>Clear</button>
+                    <button className="submit-btn" onClick={handleSubmitRoutePlan}>Submit Route Plan</button>
+                    <button className="submit-btn" onClick={handleClearRoutes}>Clear</button>
                 </>
             )}
 {
