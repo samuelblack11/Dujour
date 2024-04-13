@@ -3,7 +3,7 @@ const router = express.Router();
 const NodeGeocoder = require('node-geocoder');
 const { kmeans } = require('ml-kmeans');
 const hclust = require('ml-hclust');
-const ACO = require('aco-tsp');
+//const ACO = require('ant-colony-optimization/src/ants');
 
 // Example using Express.js
 const maxRouteTime = 2 * 60 * 60; // Maximum route time in seconds (2 hours)
@@ -18,6 +18,10 @@ const options = {
 
 router.post('/', async (req, res) => {
   const { orders, numClusters, warehouseLocation, method } = req.body;
+  console.log(`Orders: ${orders}`)
+  console.log(`NumClusters: ${numClusters}`)
+  console.log(`Warehouse Location: ${warehouseLocation}`)
+  console.log(`Method: ${method}`)
 
   try {
     // Geocode warehouse location
@@ -46,7 +50,12 @@ router.post('/', async (req, res) => {
     });
 
     // Optimization per cluster
+    // const uniqueClusterIds = [...new Set(clusterAssignments)];
+
+    console.log("Cluster Assignments:", clusterAssignments);
     const uniqueClusterIds = [...new Set(clusterAssignments)];
+    console.log("Unique Cluster IDs:", uniqueClusterIds);
+
     const optimizedRoutes = await Promise.all(uniqueClusterIds.map(clusterId =>
       optimizeRouteForCluster(clusterId, clusterAssignments, coordinates, geocodedAddresses, warehouseCoordinates, addressToGeocodeMap)
     ));
@@ -78,21 +87,53 @@ async function geocodeAddresses(addresses) {
   return Promise.all(addresses.map(address => geocoder.geocode(address)));
 }
 
-function clusterAddresses(coordinates, numClusters, method = 'kmeans') {
-    let result;
+async function clusterAddresses(coordinates, numClusters, method) {
+    if (coordinates.length === 0) {
+        throw new Error("No coordinates to cluster");
+    }
+
+    let clusterAssignments = [];
     switch (method) {
         case 'kmeans':
-            result = kmeans(coordinates, numClusters);
-            return result.clusters; // k-means directly returns cluster indices
+            const formattedCoordinates = coordinates.map(coord => [coord.latitude, coord.longitude]);
+            console.log("------")
+            console.log(coordinates)
+            console.log(formattedCoordinates)
+            console.log(numClusters)
+
+
+            const kmeansResult = kmeans(formattedCoordinates, numClusters);
+            console.log(kmeansResult);
+            clusterAssignments = kmeansResult.clusters;
+            break;
+
         case 'aco':
-            const path = findOptimalPathWithACO(coordinates);
-            return segmentPathIntoClusters(path, numClusters); // Adapt ACO result to match k-means output format
+            try {
+                const path = await findOptimalPathWithACO(coordinates);
+                clusterAssignments = segmentPathIntoClusters(path, numClusters);
+            } catch (error) {
+                console.error("Error in ACO path calculation:", error);
+                throw error; // Throw to be handled by the calling function
+            }
+            break;
+
         case 'hierarchical':
-            return hierarchicalClusterAddresses(coordinates, numClusters); // Assuming this is adapted similarly
+            const hclustResult = hierarchicalClusterAddresses(coordinates, numClusters);
+            clusterAssignments = hclustResult;
+            break;
+
         default:
             throw new Error('Unsupported clustering method');
     }
+
+    if (!Array.isArray(clusterAssignments) || clusterAssignments.length === 0) {
+        throw new Error("Failed to generate cluster assignments");
+    }
+
+    return clusterAssignments;
 }
+
+
 
 function calculateDistance(point1, point2) {
   return Math.sqrt(Math.pow(point1.latitude - point2.latitude, 2) + Math.pow(point1.longitude - point2.longitude, 2));
@@ -152,6 +193,7 @@ function hierarchicalClusterAddresses(coordinates) {
 // Ant Colony Optimization is a probabilistic techniguq for solving computational problems by finding good paths through graphs,
 // it's inspired by the behavior of ants searching for food
 // Function to use ACO to find an optimal path
+
 function createGraphFromCoordinates(coordinates) {
     let graph = [];
     for (let i = 0; i < coordinates.length; i++) {
@@ -163,22 +205,38 @@ function createGraphFromCoordinates(coordinates) {
     return graph;
 }
 
-function findOptimalPathWithACO(coordinates) {
-    let aco = new ACO({
-        alpha: 1, // influence of pheromone
-        beta: 2, // influence of heuristic value
-        q: 1, // total pheromone left on the trail by each ant
-        rho: 0.5 // pheromone evaporation coefficient
-    });
-    const graph = createGraphFromCoordinates(coordinates);
-    aco.setGraph(graph);
-    aco.startAnts(100, 50, 'random');
-    return aco.getBestPath(); // This returns the sequence of coordinates as an optimal path
+async function findOptimalPathWithACO(coordinates) {
+    try {
+        // Dynamically import the ACO module
+        const ACO = await import('ant-colony-optimization');
+
+        // Initialize the ACO algorithm with configuration
+        const aco = new ACO.default({
+            alpha: 1,  // influence of pheromone trails
+            beta: 2,   // influence of heuristic value (visibility)
+            rho: 0.5,  // pheromone evaporation rate
+            q: 1       // pheromone deposit amount
+        });
+
+        // Create a graph from coordinates
+        const graph = createGraphFromCoordinates(coordinates);
+        aco.setGraph(graph);
+
+        // Start the ACO algorithm with a specified number of ants and iterations
+        aco.startAnts(100, 50);  // Example: start 100 ants for 50 iterations
+
+        // Retrieve the best path after running the algorithm
+        const result = await aco.getBestPath();
+        return result.bestPath;  // Return the best path found by the ACO algorithm
+    } catch (error) {
+        console.error('Error loading or executing the ACO module:', error);
+        throw error;  // Re-throw the error to handle it further up the call stack
+    }
 }
 
 function segmentPathIntoClusters(path, numClusters) {
     const clusterSize = Math.ceil(path.length / numClusters);
-    let clusterAssignments = new Array(path.length);
+    let clusterAssignments = new Array(path.length).fill(-1);
     
     for (let clusterIndex = 0; clusterIndex < numClusters; clusterIndex++) {
         let start = clusterIndex * clusterSize;

@@ -57,8 +57,9 @@ router.post('/', async (req, res) => {
 });
 
 // DELETE endpoint to remove all routes for a specific date
-router.delete('/deliveryRoutes', async (req, res) => {
+router.delete('/', async (req, res) => {
     const { date } = req.query; // Date should be passed as a query parameter
+    console.log("Received date for deletion:", date); // Check what is received
 
     try {
         // Convert the date to the same format and timezone as used in your GET method
