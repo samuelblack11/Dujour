@@ -1,6 +1,6 @@
 // config.js
 const config = {
-    googleMapsApiKey: "AIzaSyBwE-udq0enHX9g-Ip6cs5lyRebkiTBuho",
+    googleMapsApiKey: "AIzaSyDQu6V-fp5xGWFhPy1e_l2OcqeBkoje-Bs",
 };
 
 module.exports = config;
