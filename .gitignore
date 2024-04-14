@@ -3,6 +3,7 @@
 /server/config.js
 /client/public/backgroundVideos
 startupCheatSheet.txt
+/client/src/config
 
 # dependencies
 /node_modules

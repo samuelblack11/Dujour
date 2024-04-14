@@ -33,7 +33,9 @@ router.post('/', async (req, res) => {
       // Ensure this matches your frontend submission structure
       address: stop.address,
       customerEmail: stop.customerEmail,
-      orderNumber: stop.orderNumber
+      orderNumber: stop.orderNumber,
+      latitude: stop.latitude,
+      longitude: stop.longitude
     }));
 
     return {

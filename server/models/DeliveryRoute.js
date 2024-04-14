@@ -13,6 +13,8 @@ const deliveryRouteSchema = new Schema({
   stops: [{
     stopNumber: Number,
     address: String,
+    latitude: Number,
+    longitude: Number,
     deliveryDate: Date,
     dropOffTime: Date,
     orderId: { type: Schema.Types.ObjectId, ref: 'Order' },

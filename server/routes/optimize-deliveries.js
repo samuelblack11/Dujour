@@ -18,7 +18,6 @@ const options = {
 
 router.post('/', async (req, res) => {
   const { orders, numClusters, warehouseLocation, method } = req.body;
-
   try {
     // Geocode warehouse location
     const warehouseGeocode = await geocodeAddresses([warehouseLocation]);
@@ -35,13 +34,17 @@ router.post('/', async (req, res) => {
 
     // Clustering based on selected method
     const clusterAssignments = await clusterAddresses(coordinates, numClusters, method);
-
+    console.log("----")
+    console.log(clusterAssignments)
     // Optimization per cluster
     const uniqueClusterIds = [...new Set(clusterAssignments)]; // Get unique cluster IDs
+    console.log("!!!!")
+    console.log(uniqueClusterIds)
     const optimizedRoutes = await Promise.all(uniqueClusterIds.map(clusterId =>
       optimizeRouteForCluster(clusterId, clusterAssignments, coordinates, orders, warehouseCoordinates)
     ));
-
+    console.log("----")
+    console.log(optimizedRoutes)
     // Build response with order details
     const optimizedRoutesWithOrders = optimizedRoutes.filter(route => route.length > 0);
     res.json({ optimizedRoutes: optimizedRoutesWithOrders });
@@ -74,17 +77,34 @@ async function clusterAddresses(coordinates, numClusters, method) {
 }
 
 function optimizeRouteForCluster(clusterId, clusterAssignments, coordinates, orders, warehouseLocation) {
-  const sortedOrders = coordinates
-    .filter((_, index) => clusterAssignments[index] === clusterId)
-    .map((coord, index) => ({ ...orders[index], coord }))
-    .sort((a, b) => calculateDistance(warehouseLocation, a.coord) - calculateDistance(warehouseLocation, b.coord));
+  // Create an array of orders with their coordinates and original indices
+  const ordersWithCoords = coordinates.map((coord, index) => ({
+    ...orders[index],
+    latitude: coord.latitude,  // Storing latitude
+    longitude: coord.longitude, // Storing longitude
+    coord,
+    originalIndex: index
+  }));
 
+  // Filter this array to only include orders in the current cluster
+  const filteredOrders = ordersWithCoords.filter(order => clusterAssignments[order.originalIndex] === clusterId);
+
+  // Sort the filtered orders by distance to the warehouse
+  const sortedOrders = filteredOrders.sort((a, b) =>
+    calculateDistance(warehouseLocation, a.coord) - calculateDistance(warehouseLocation, b.coord)
+  );
+
+  // Map the sorted orders to the required response structure including coordinates
   return sortedOrders.map(order => ({
     customerEmail: order.customerEmail,
     orderNumber: order.orderNumber,
-    address: order.deliveryAddress
+    address: order.deliveryAddress,
+    latitude: order.latitude,  // Include latitude in the response
+    longitude: order.longitude // Include longitude in the response
   }));
 }
+
+
 
 function calculateDistance(point1, point2) {
   return Math.sqrt(Math.pow(point1.latitude - point2.latitude, 2) + Math.pow(point1.longitude - point2.longitude, 2));
@@ -93,7 +113,7 @@ function calculateDistance(point1, point2) {
 // Alternative methods for route optimization below
 
 // Hierarchical Clustering builds a tree of clusters that can be split or merged based on distance thresholds.
-function hierarchicalClusterAddresses(coordinates) {
+function hierarchicalClusterAddresses(coordinates, numClusters) {
     const clusters = hclust.agglomerative(coordinates, numClusters, 'ward');
     const indices = clusters.indices();
     return indices; // Flat array of cluster indices
@@ -122,7 +142,7 @@ async function findOptimalPathWithACO(coordinates) {
         //const ACO = module.default;
 
         // Initialize the ACO algorithm with configuration
-        const aco = new ACO.default({
+        const aco = new ACO({
             alpha: 1,  // influence of pheromone trails
             beta: 2,   // influence of heuristic value (visibility)
             rho: 0.5,  // pheromone evaporation rate

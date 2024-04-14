@@ -10,8 +10,10 @@ body {
 .header-container {
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Adjusted from center to space-between */
-    width: 100%; /* Ensure the container takes full width */
+    justify-content: space-between;
+    width: 100%;
+    height: auto; /* Adjust or set a min-height if necessary */
+    padding: 10px 0;
 }
 
 .header-content {
@@ -19,20 +21,23 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-grow: 1; /* Allows the content to grow and center logo and title */
+    flex-grow: 1;
+    padding: 10px;
 }
 
+
 .header-title {
-    margin-top: -25px;
+    margin-top: 0;
     color:  rgba(128, 50, 50, 0.6);
 }
 
 .logo {
-    max-width: 100%; /* Makes the image responsive, ensuring it's not larger than its container */
     height: auto; /* Maintains aspect ratio */
-    width: auto; /* Adjusts width automatically to maintain aspect ratio */
-    max-height: 150px; /* Example fixed height to make the image smaller */
+    width: 100%; /* Use 100% of the container width up to its max width */
+    max-width: 150px; /* Maximum width, adjust based on your design */
+    max-height: 150px; /* Maximum width, adjust based on your design */
 }
+
 
 .settings-button-container {
   position: relative;

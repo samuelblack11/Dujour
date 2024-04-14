@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GenericTable, GenericPopup } from './ReusableReactComponents';
+import MapComponent from './MapComponent'; 
 
 const RouteOptimization = () => {
     const [selectedDate, setSelectedDate] = useState('');
@@ -13,8 +14,11 @@ const RouteOptimization = () => {
     const [routeDetails, setRouteDetails] = useState({ routes: [] });
     const [selectedDrivers, setSelectedDrivers] = useState({}); // {routeIndex: driverId}
     const [routingMethod, setRoutingMethod] = useState('kmeans'); // Default to 'kmeans'
-
-
+    const whLocation = {
+        latitude: 38.8433,
+        longitude: -77.2705,
+        address: "9464 Main St, FairFax, VA 22031"
+    };
 
     useEffect(() => {
         const fetchData = async () => {
@@ -62,15 +66,14 @@ const RouteOptimization = () => {
 }, [routeDetails]);
 
 useEffect(() => {
-  console.log("Updated Optimized Routes:", optimizedRoutes);
-}, [optimizedRoutes]);
+    console.log("Existing Route Details:", routeDetails);
+    console.log("Updated Optimized Routes:", optimizedRoutes);
+}, [routeDetails, optimizedRoutes]);
 
 
   const fetchDrivers = async () => {
     try {
       const response = await axios.get('/api/drivers');
-      console.log("DRIVERS....")
-      console.log(response.data)
       setDrivers(response.data);
     } catch (error) {
       console.error('Error fetching drivers:', error);
@@ -98,18 +101,13 @@ const handleChange = (setter) => (e) => setter(e.target.value);
     // Submit handler simplified with async/await and direct mapping
 const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Use all orders displayed for the selected date
     try {
         const { data } = await axios.post('/api/optimize-deliveries', {
             orders, // Sending all fetched orders
             numClusters,
-            warehouseLocation: "9464 Main St, FairFax, VA 22031",
+            warehouseLocation: whLocation,
             method: routingMethod
         });
-        console.log("???")
-        console.log(data.optimizedRoutes)
-        // Assuming the backend processes this and returns optimized routes
         setOptimizedRoutes(data.optimizedRoutes || []);
     } catch (error) {
         console.error("Error optimizing routes:", error);
@@ -169,14 +167,17 @@ const flatRoutes = optimizedRoutes.flatMap((route, clusterIndex) =>
             const estOffset = 5 * 60 * 60 * 1000; // UTC-5 for EST
             const estTime = new Date(selectedDateTime.getTime() - estOffset);
             const startTimeIso = estTime.toISOString();
-
+            console.log("++++")
+            console.log(optimizedRoutes)
             const routes = optimizedRoutes.map((route, index) => ({
                 clusterId: index,
                 stops: route.map((stop, stopIndex) => ({
                     stopNumber: stopIndex + 1,
                     address: stop.address,
                     customerEmail: stop.customerEmail,
-                    orderNumber: stop.orderNumber
+                    orderNumber: stop.orderNumber,
+                    latitude: stop.latitude,
+                    longitude: stop.longitude
                 })),
                 startTime: startTimeIso
             }));
@@ -309,6 +310,7 @@ const handleConfirmDriverAssignments = async () => {
   routePlanExists && Array.isArray(routeDetails.routes) && routeDetails.routes.length > 0 && (
     <>
       <h2>Route Plan for {reformatDate(selectedDate)}</h2>
+     <MapComponent whLocation={whLocation} routes={routeDetails.routes} />
       <button className="submit-btn" onClick={handleConfirmDriverAssignments}>Confirm Driver Assignments</button>
       <button className="submit-btn" onClick={handleDeleteRoutePlan}>Delete Route Plan</button>
       
@@ -333,7 +335,7 @@ const handleConfirmDriverAssignments = async () => {
             <tbody>
               {route.stops.map((stop, index) => (
                 <tr key={index}>
-                  <td>{index + 1}</td> {/* Assuming stopNumber is the index + 1 */}
+                  <td>{index + 1}</td>
                   <td>{stop.address}</td>
                   <td>{stop.customerEmail}</td>
                   <td>{stop.orderNumber}</td>
@@ -341,13 +343,12 @@ const handleConfirmDriverAssignments = async () => {
               ))}
             </tbody>
           </table>
+        {/*  */}
         </div>
       ))}
     </>
   )
 }
-
-
         </div>
     );
 };
