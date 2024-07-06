@@ -2,7 +2,6 @@
   "name": "dujour-shared",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -22,5 +21,23 @@
     "mongoose": "^8.3.2",
     "nodemailer": "^6.9.13",
     "stripe": "^15.8.0"
-  }
+  },
+  "files": [
+    "routes/deliveryRoutes.js",
+    "routes/farms.js",
+    "routes/items.js",
+    "routes/optimize-deliveries.js",
+    "routes/orders.js",
+    "routes/pickPlans.js",
+    "routes/users.js",
+    "routes/logo128.png",
+    "models/DeliveryRoute.js",
+    "models/Item.js",
+    "models/Order.js",
+    "models/PickPlan.js",
+    "models/PromoCode.js",
+    "models/promos.json",
+    "models/User.js",
+    "assets/logo128.png"
+  ]
 }
