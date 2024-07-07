@@ -1,0 +1,51 @@
+name: Deploy dujour-mobile
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'dujour-mobile/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16' # Use Node.js version 16
+        # If environment variables are needed globally, they can be added here under 'env:'
+    
+    - name: Install dependencies for server
+      run: |
+        cd dujour-mobile/server
+        npm install
+    
+    - name: Install dependencies for client
+      run: |
+        cd dujour-mobile/client
+        npm install
+
+    - name: Build React app (if needed)
+      run: |
+        cd dujour-mobile/client
+        npm run build  # Adjust if your client has a specific build script
+    
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: dujour-mobile-build
+        path: dujour-mobile/client/build
+
+    - name: Deploy to Azure
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: 'dujour-mobile'  # Replace with your Azure Web App name
+        slot-name: 'production'  # If you use deployment slots
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: dujour-mobile/client/build  # Specify path to the build output for deployment
+
+# Optional: Add more steps for server deployment if server and client are deployed separately
