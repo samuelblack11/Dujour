@@ -11,7 +11,7 @@ function PickView() {
   const formattedDate = dateInEST.format('YYYY-MM-DD'); // Ensures only the date component is sent
 
   const [pickPlanDetails, setPickPlanDetails] = useState(null);
-  const [pickPlanExists, setPickPlanExists] = useState(false);
+  //const [pickPlanExists, setPickPlanExists] = useState(false);
   const [fullyPickedOrders, setFullyPickedOrders] = useState([]);
   const [completedOrders, setCompletedOrders] = useState([]);
 
@@ -43,7 +43,7 @@ function PickView() {
     try {
       console.log(formattedDate)
       const response = await axios.get(`/api/pickPlans/specificPickPlan?date=${formattedDate}&userId=${user._id}`);
-      setPickPlanExists(response.data.exists);
+      //setPickPlanExists(response.data.exists);
       console.log(response.data.exists)
 
       if (response.data.exists) {

@@ -85,7 +85,7 @@ async function registerUser(email, password, role) {
   }
 }
 
-const deleteAllUsers = async () => {
+{/*const deleteAllUsers = async () => {
   if (window.confirm("Are you sure you want to delete all users? This action cannot be undone.")) {
     try {
       const response = await axios.delete('/api/users/deleteAll');
@@ -96,7 +96,7 @@ const deleteAllUsers = async () => {
       alert("Failed to delete all users. Check the console for more details.");
     }
   }
-};
+};*/}
 
   return (
     <div className="login-container">

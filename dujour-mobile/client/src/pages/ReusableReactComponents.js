@@ -8,7 +8,7 @@ export const useBounceBack = () => {
     const handleBounceBack = () => {
       const container = document.querySelector('.table-container');
       if (container) {
-        const maxScrollLeft = container.scrollWidth - container.clientWidth;
+        //const maxScrollLeft = container.scrollWidth - container.clientWidth;
 
         // If user scrolls left or right, bring them back to the center
         if (container.scrollLeft !== 0) {

@@ -4,7 +4,7 @@ import './AllPages.css';
 import { AuthContext } from '../App.js';
 import OverviewMap from './OverviewMap';
 import { GenericTable } from './ReusableReactComponents';
-import { GoogleMap, LoadScript } from '@react-google-maps/api';
+import { LoadScript } from '@react-google-maps/api';
 import BarcodeScannerComponent from './BarcodeScannerComponent';
 const moment = require('moment-timezone');
 
@@ -14,19 +14,19 @@ function RouteView() {
   const formattedDate = moment(dateInEST).format('YYYY-MM-DD');
   const { user } = useContext(AuthContext);
   const [routeDetails, setRouteDetails] = useState({ routes: [] });
-  const [orders, setOrders] = useState([]);
-  const [selectedOrders, setSelectedOrders] = useState([]);
-  const [routePlanExists, setRoutePlanExists] = useState(false);
+  //const [orders, setOrders] = useState([]);
+  //const [selectedOrders, setSelectedOrders] = useState([]);
+  //const [routePlanExists, setRoutePlanExists] = useState(false);
   const [deliveredOrders, setDeliveredOrders] = useState([]);
-  const [completedOrders, setCompletedOrders] = useState([]);
-  const [currentStop, setCurrentStop] = useState(null);
-  const [stopsData, setStopsData] = useState([]);
+  //const [completedOrders, setCompletedOrders] = useState([]);
+  //const [currentStop, setCurrentStop] = useState(null);
+  //const [stopsData, setStopsData] = useState([]);
   const [combinedStops, setCombinedStops] = useState([]);
   const [allOrdersReadyForNavigation, setAllOrdersReadyForNavigation] = useState(false);
-  const directionsRendererRef = useRef(null);
+  //const directionsRendererRef = useRef(null);
   // State definitions
   const [currentLocation, setCurrentLocation] = useState(null);
-  const [selectedDestination, setSelectedDestination] = useState(null);
+  //const [selectedDestination, setSelectedDestination] = useState(null);
   const [showScanner, setShowScanner] = useState(false);
   const [currentOrder, setCurrentOrder] = useState(null);
   const isGoogleApiLoaded = window.google && window.google.maps;
@@ -137,7 +137,7 @@ const handlePickupPackage = async (order) => {
         //const dateForAPICall = 
         const response = await axios.get(`/api/deliveryRoutes/specificRoute?date=${formattedDate}&userId=${user._id}`);
         //console.log("API response:", response.data);
-        setRoutePlanExists(response.data.exists);
+        //setRoutePlanExists(response.data.exists);
 
         if (response.data.exists) {
           setRouteDetails({ routes: response.data.routes });
@@ -229,10 +229,6 @@ function openGoogleMaps(lat, lng) {
   const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
   window.open(url, '_blank'); // Open in a new tab
 }
-
-  const handleBack = () => {
-    setCurrentStop(null);
-  };
 
   async function getOrderStatusesFromStops(stops) {
   const orderIds = stops.map(stop => stop.orderId);
@@ -350,7 +346,7 @@ const columns = [
           buttonLabel = 'Pick Up';
           buttonAction = () => {
             setCurrentOrder(row);
-            setCurrentStop(row);
+            //setCurrentStop(row);
             setScanAction('pickup');
             setShowScanner(true);
           };
