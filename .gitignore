@@ -7,11 +7,12 @@
 /dujour-shared/passwordEncryption.js
 /dujour-shared/routes/users.js
 /dujour-shared/routes/orders.js
-/dujour-desktop/adminDashboard/client/public/backgroundVideos
 /dujour-desktop/startupCheatSheet.txt
 /dujour-desktop/adminDashboard/client/src/config.js
 /dujour-desktop/customerFacing/client/src/config.js
-
+dujour-desktop/adminDashboard/client/public/logo192.png
+dujour-desktop/customerFacing/client/public/logo192.png
+dujour-mobile/client/public/logo192.png
 # Correct syntax to ignore all node_modules directories everywhere
 **/node_modules/
 
@@ -42,7 +43,7 @@ yarn-error.log*
 **/node_modules/
 
 # Build directory
-**/public/
+# **/public/
 
 # Ignore all log files and the package-lock.json
 *.log
