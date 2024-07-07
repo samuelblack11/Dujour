@@ -3,7 +3,7 @@
 # Use Node.js 16
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-nvm use 16
+nvm use 18
 
 # Set the OpenSSL legacy provider for Node.js 17+
 export NODE_OPTIONS=--openssl-legacy-provider
