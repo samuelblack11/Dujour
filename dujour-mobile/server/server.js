@@ -8,6 +8,7 @@ app.use(express.json());
 app.use(cors());
 const port = process.env.PORT || 3004;
 //const User = require('../dujour-shared/models/User');
+// Test comment 123
 // URL encode the password to handle special characters
 const encodedUsername = encodeURIComponent(process.env.mongoUserName);
 const encodedPassword = encodeURIComponent(process.env.mongoPwd);

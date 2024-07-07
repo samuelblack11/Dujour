@@ -33,7 +33,7 @@ jobs:
 
       - name: List contents of public directory
         working-directory: ./dujour-mobile/client
-        run: ls -al public/
+        run: ls -al ./public/
 
       - name: Build client application
         working-directory: ./dujour-mobile/client
