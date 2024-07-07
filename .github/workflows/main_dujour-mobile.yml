@@ -21,10 +21,9 @@ jobs:
         with:
           node-version: '18.x'
 
-      - name: Change to the correct directory
-        run: cd dujour-mobile  # Adjust this path to where your package.json is located
-
+      # Set the working directory for all subsequent steps
       - name: npm install, build, and test
+        working-directory: ./dujour-mobile  # Adjust this to the correct subdirectory
         run: |
           npm install
           npm run build --if-present
