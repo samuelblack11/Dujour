@@ -94,14 +94,34 @@ const SubmitMenu = () => {
         fetchItems();
     }, []);
 
-    const fetchItems = async () => {
-        try {
-            const response = await axios.get('/api/items');
-            setItems(response.data.filter(item => item.farm && item.farm.name === user.name));
-        } catch (error) {
-            console.error('Failed to fetch items:', error);
-        }
-    };
+const fetchItems = async () => {
+    try {
+        const response = await axios.get('/api/items');
+        const nextSaturday = getNextSaturday(new Date()); // Get next Saturday based on today's date
+        setItems(response.data.filter(item => {
+            // Check if the item is from the correct farm
+            const isCorrectFarm = item.farm && item.farm.name === user.name;
+            if (!isCorrectFarm) {
+                return false;
+            }
+            
+            // Check if the delivery date matches next Saturday
+            const deliveryDate = new Date(item.forDeliveryOn);
+            // Format the date to match "MM/dd/yyyy" explicitly
+            const formattedDeliveryDate = deliveryDate.toLocaleDateString('en-US', {
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit'
+            });
+            const isDeliveryDate = formattedDeliveryDate === nextSaturday;
+            return isDeliveryDate;
+        }));
+    } catch (error) {
+        console.error('Failed to fetch items:', error);
+    }
+};
+
+
 
     const handleAddEditItem = (item = null) => {
         setCurrentItem(item);

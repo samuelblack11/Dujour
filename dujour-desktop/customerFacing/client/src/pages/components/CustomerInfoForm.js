@@ -2,7 +2,16 @@ import React from 'react';
 import ReactDatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 
-const CustomerInfoForm = ({ orderData, handleChange, handleDateChange, isAdmin }) => {
+const CustomerInfoForm = ({ orderData, handleChange, handleDateChange, isAdmin, nextSaturday }) => {
+
+    const filterDate = (date) => {
+        const nextSat = new Date(nextSaturday);
+        return date.getDate() === nextSat.getDate() && 
+               date.getMonth() === nextSat.getMonth() && 
+               date.getFullYear() === nextSat.getFullYear();
+    };
+
+
     return (
         <table className="customer-info-table">
             <tbody>
@@ -58,6 +67,7 @@ const CustomerInfoForm = ({ orderData, handleChange, handleDateChange, isAdmin }
                             selected={new Date(orderData.deliveryDate)}
                             onChange={handleDateChange}
                             dateFormat="yyyy-MM-dd"
+                            filterDate={filterDate}
                         />
                     </td>
                 </tr>

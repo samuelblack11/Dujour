@@ -16,7 +16,6 @@ import useNextSaturday from './hooks/useNextSaturday';
 import CartTable from './components/CartTable'; // make sure the path is correct
 import CartSummaryDisplay from './components/CartSummaryDisplay'; // make sure the path is correct
 import CustomerInfoForm from './components/CustomerInfoForm'; // make sure the path is correct
-
 import { useCart } from '../context/CartContext';
 
 const LoadingSpinner = () => {
@@ -421,6 +420,7 @@ const validateFormFields = () => {
           handleChange={handleChange}
           handleDateChange={handleDateChange}
           isAdmin={user.role === 'admin'}
+          nextSaturday={nextSaturday}
         />
       <div className="cart-summary">
         <h3>Cart Summary</h3>

@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('../../dujour-shared/node_modules/mongoose');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const app = express();
@@ -8,7 +8,7 @@ app.use(express.json());
 app.use(cors());
 const port = process.env.PORT || 3004;
 //const User = require('../dujour-shared/models/User');
-
+// Test comment 123
 // URL encode the password to handle special characters
 const encodedUsername = encodeURIComponent(process.env.mongoUserName);
 const encodedPassword = encodeURIComponent(process.env.mongoPwd);
@@ -16,7 +16,6 @@ const encodedPassword = encodeURIComponent(process.env.mongoPwd);
 
 // Construct the MongoDB URI using imported configuration
 const uri = `mongodb+srv://${encodedUsername}:${encodedPassword}@${process.env.mongoClusterName}.mongodb.net/Dujour?retryWrites=true&w=majority&appName=${process.env.databaseName}`
-console.log(uri);
 mongoose.connect(uri, { useNewUrlParser: true})
   .then(() => {
     console.log('Connected to database...');
@@ -44,10 +43,10 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(express.static(path.join(__dirname, 'client/public')));
 
 // Import and use routes
-const orderRoutes = require('../../dujour-shared/routes/orders');
-const userRoutes = require('../../dujour-shared/routes/users');
-const deliveryRoutes = require('../../dujour-shared/routes/deliveryRoutes');
-const pickPlans = require('../../dujour-shared/routes/pickPlans');
+const orderRoutes = require('dujour-shared/routes/orders');
+const userRoutes = require('dujour-shared/routes/users');
+const deliveryRoutes = require('dujour-shared/routes/deliveryRoutes');
+const pickPlans = require('dujour-shared/routes/pickPlans');
 
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);

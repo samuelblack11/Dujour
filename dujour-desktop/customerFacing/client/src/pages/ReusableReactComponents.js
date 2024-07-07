@@ -152,7 +152,8 @@ export const DetailedOrderSummary = ({ show, order, onClose, forConfirmation, is
         )}
       </p>
       <p><strong>Total Cost:</strong>
-        {order.promoApplied ? (
+
+        {order.originalTotalCost != order.totalCost ? (
           <>
             <span style={{ textDecoration: 'line-through' }}>${order.originalTotalCost.toFixed(2)}</span> ${order.totalCost.toFixed(2)}
           </>

@@ -213,8 +213,6 @@ const updateActiveStatus = async (newStatus, itemId) => {
     }
 };
 
-
-
     const columns = [
   {
     Header: 'Item Name',
@@ -299,14 +297,32 @@ const updateActiveStatus = async (newStatus, itemId) => {
         fetchFarms();
     }, []);
 
-    const fetchItems = async () => {
-        try {
-            const response = await axios.get('/api/items');
-            setItems(response.data);
-        } catch (error) {
-            console.error('Failed to fetch items:', error);
-        }
-    };
+const getNextSaturday = () => {
+    const currentDate = new Date();
+    const dayOfWeek = currentDate.getDay();
+    const nextSaturday = new Date(currentDate);
+    nextSaturday.setDate(currentDate.getDate() + (6 - dayOfWeek + (dayOfWeek > 5 ? 7 : 0))); // Adjust for next Saturday
+
+    return nextSaturday.toISOString().split('T')[0]; // Return date in YYYY-MM-DD format
+};
+
+const fetchItems = async () => {
+    try {
+        const response = await axios.get('/api/items');
+        const nextSaturday = getNextSaturday(); // Get the next Saturday date
+
+        const filteredItems = response.data.filter(item => 
+            item.forDeliveryOn.split('T')[0] === nextSaturday // Filter items based on next Saturday
+        );
+
+        setItems(filteredItems); // Set the filtered items
+    } catch (error) {
+        console.error('Failed to fetch items:', error);
+    }
+};
+
+
+
 
     const fetchFarms = async () => {
         try {

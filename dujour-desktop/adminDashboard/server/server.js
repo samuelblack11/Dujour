@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const mongoose = require('../../../dujour-shared/node_modules/mongoose');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');  // Import the 'path' module here
 const app = express();
@@ -42,16 +42,16 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(express.static(path.join(__dirname, 'client/public')));
 
 // Import and use routes
-const farmRoutes = require('../../../dujour-shared/routes/farms');
-const itemRoutes = require('../../../dujour-shared/routes/items');
-const orderRoutes = require('../../../dujour-shared/routes/orders');
-const userRoutes = require('../../../dujour-shared/routes/users');
-const optimizeDeliveries = require('../../../dujour-shared/routes/optimize-deliveries')({
+const farmRoutes = require('dujour-shared/routes/farms');
+const itemRoutes = require('dujour-shared/routes/items');
+const orderRoutes = require('dujour-shared/routes/orders');
+const userRoutes = require('dujour-shared/routes/users');
+const optimizeDeliveries = require('dujour-shared/routes/optimize-deliveries')({
   googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
 });
 
-const deliveryRoutes= require('../../../dujour-shared/routes/deliveryRoutes');
-const pickPlans= require('../../../dujour-shared/routes/pickPlans');
+const deliveryRoutes= require('dujour-shared/routes/deliveryRoutes');
+const pickPlans= require('dujour-shared/routes/pickPlans');
 
 app.use('/api/farms', farmRoutes);
 app.use('/api/items', itemRoutes);

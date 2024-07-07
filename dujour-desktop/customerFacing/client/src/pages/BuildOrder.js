@@ -42,14 +42,11 @@ const BuildOrder = () => {
     }
 };
 
-
-
   // When you need to show the modal
   const handleShowFarmInfo = (farm) => {
     setSelectedFarm(farm);
     setShowFarmInfo(true);
   };
-
 
   // When you need to close the modal
   const handleCloseFarmInfo = () => {
@@ -66,22 +63,23 @@ const BuildOrder = () => {
     }
     navigate('/place-order'); // Navigate with necessary data if needed
   };
+
+
 const fetchAvailableItems = async () => {
     try {
         const response = await axios.get('/api/items');
         const relevantSaturday = getNextRelevantSaturday(); // Determine the relevant Saturday
 
         const filteredItems = response.data
-            .filter(item =>
-                item.activeStatus === true &&  // Only include items that are active
-                item.forDeliveryOn.split('T')[0] === relevantSaturday // And scheduled for the relevant Saturday
-            )
+            .filter(item => {
+                const isScheduledForSaturday = item.forDeliveryOn.split('T')[0] === relevantSaturday;
+                return item.activeStatus && isScheduledForSaturday;
+            })
             .map(item => ({
                 ...item,
                 quantity: 0,
                 unitCost: item.unitCost || 0,
             }));
-            console.log(filteredItems)
 
         setAvailableItems(filteredItems); // Set the filtered and enhanced items
         fetchImages(filteredItems); // Fetch images for the filtered items
@@ -89,6 +87,7 @@ const fetchAvailableItems = async () => {
         console.error("Error fetching items:", error);
     }
 };
+
 
 const fetchImages = async (items) => {
     const newImageSources = {};
