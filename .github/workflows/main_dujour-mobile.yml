@@ -42,8 +42,6 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write #This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -57,9 +55,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_23F3F02134DC486CB664F9857E3418F6 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_61C3527CD7D046DFB3C81AEB8ADD53E5 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_43051666E0D64A9099D0B2BB8ED3A738 }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          secret: ${{ secrets.AZURE_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -68,4 +66,3 @@ jobs:
           app-name: 'dujour-mobile'
           slot-name: 'Production'
           package: .
-          
