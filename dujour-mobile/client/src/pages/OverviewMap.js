@@ -2,8 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Loader } from "@googlemaps/js-api-loader";
 import '../App.css'; // Import the CSS file for marker labels
 
-const config = require('../config');
-
 const containerStyle = {
   width: '100%',
   height: '400px'
@@ -18,10 +16,10 @@ const libraries = ['places', 'geometry']; // Add any other required libraries he
 
 // Create a single instance of the Loader
 const loader = new Loader({
-  apiKey: config.googleMapsApiKey,
+  apiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
   version: "weekly",
   libraries: libraries,
-  mapIds: [config.mapID] // Replace with your actual Map ID
+  mapIds: [process.env.REACT_APP_MAP_ID,] // Replace with your actual Map ID
 });
 
 const OverviewMap = ({ stops }) => {

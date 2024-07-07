@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { GoogleMap, LoadScript, DirectionsRenderer } from '@react-google-maps/api';
-const config = require('../config');
 
 const containerStyle = {
   width: '100%',
