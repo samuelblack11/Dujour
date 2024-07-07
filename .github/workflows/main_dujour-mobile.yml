@@ -1,84 +1,55 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
-name: Build and deploy Node.js app to Azure Web App - dujour-mobile
+name: Deploy Node-React App to Azure Web App
 
 on:
   push:
     branches:
-      - main
-    paths:
-      - 'dujour-mobile/**'
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  id-token: write
+      - main  # Adjust as needed
 
 jobs:
-  setup-build-and-deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
 
-      - name: Set up Node.js version
-        uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
         with:
-          node-version: '18.x'
+          node-version: '18'  # Adjust as needed
 
-      - name: Install server dependencies
-        working-directory: ./dujour-mobile/server
+      - name: Install root dependencies
         run: npm install
+        working-directory: ./dujour-mobile
 
       - name: Install client dependencies
-        working-directory: ./dujour-mobile/client
         run: npm install
-
-      - name: List contents of public directory
         working-directory: ./dujour-mobile/client
-        run: ls -al ./public/
 
-      - name: Build client application
-        working-directory: ./dujour-mobile/client
+      - name: Build client
         run: npm run build
+        working-directory: ./dujour-mobile/client
 
-      - name: Zip client build for deployment
-        run: zip -r client-build.zip ./dujour-mobile/client/build
+      - name: Install server dependencies
+        run: npm install
+        working-directory: ./dujour-mobile/server
 
-      - name: Upload client build artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: dujour-mobile-client-build
-          path: client-build.zip
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: setup-build-and-deploy
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
-    steps:
-      - name: Download client build artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: dujour-mobile-client-build
-
-      - name: Unzip client build artifact
-        run: unzip client-build.zip -d ./deploy
+      - name: Zip deployment package
+        run: |
+          cd ./dujour-mobile
+          zip -r deploy.zip client/build server -x "*node_modules*"
+          echo "Artifact zipped"
 
       - name: Login to Azure
         uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          secret: ${{ secrets.AZURE_SECRET }}
-          tenant-id: ${{ secrets.AZURE_TENANT }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy to Azure Web App
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'dujour-mobile'
-          slot-name: 'Production'
-          package: ./deploy
+      - name: Deploy to Azure using Azure CLI
+        run: |
+          az webapp deploy --resource-group dujour-mobile_group --name dujour-mobile --src-path ./dujour-mobile/deploy.zip
+
+      - name: Install dependencies on Azure via Kudu API
+        run: |
+          curl -X POST https://dujour-mobile.scm.azurewebsites.net/api/command \
+          -d '{"command": "npm install", "dir": "site\\wwwroot"}' \
+          -H 'Authorization: Bearer ${{ secrets.AZURE_SECRET }}' \
+          -H 'Content-Type: application/json'
