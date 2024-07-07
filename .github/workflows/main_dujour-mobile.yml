@@ -11,6 +11,10 @@ on:
       - 'dujour-mobile/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   setup-build-and-deploy:
     runs-on: ubuntu-latest
@@ -71,6 +75,8 @@ jobs:
           secret: ${{ secrets.AZURE_SECRET }}
           tenant-id: ${{ secrets.AZURE_TENANT }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          auth-type: 'openidConnect'
+          federated-token: ${{ steps.auth.outputs.federated-token }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
