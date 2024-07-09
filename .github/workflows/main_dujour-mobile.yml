@@ -34,12 +34,19 @@ jobs:
         run: npm install
         working-directory: ./dujour-mobile/server  # Runs npm install in the server subdirectory
 
+      - name: Remove non-essential node modules
+        run: |
+          rm -rf ./dujour-mobile/server/node_modules/@types
+          rm -rf ./dujour-mobile/server/node_modules/*/test
+          rm -rf ./dujour-mobile/server/node_modules/*/docs
+        working-directory: ./
+
       - name: Zip deployment package
         run: |
           cd dujour-mobile
-          zip -r deploy.zip client/build server
+          zip -r deploy.zip client/build server -x "*.d.ts" -x "*test*" -x "*README.md" -x "*CHANGELOG.md"
           echo "Artifact zipped"
-        working-directory: ./  # Make sure to navigate to the root directory to execute the zip command correctly
+        working-directory: ./
 
       - name: List and sort contents of deploy.zip by size
         run: |
