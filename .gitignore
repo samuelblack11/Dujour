@@ -10,12 +10,14 @@
 /dujour-desktop/startupCheatSheet.txt
 /dujour-desktop/adminDashboard/client/src/config.js
 /dujour-desktop/customerFacing/client/src/config.js
-dujour-desktop/adminDashboard/client/public/logo192.png
-dujour-desktop/customerFacing/client/public/logo192.png
-dujour-mobile/client/public/logo192.png
-dujour-mobile/client/public/logo128.png
-# Correct syntax to ignore all node_modules directories everywhere
-**/node_modules/
+/dujour-desktop/adminDashboard/client/public/logo192.png
+/dujour-desktop/adminDashboard/client/public/logo128.png
+/dujour-desktop/customerFacing/client/public/logo192.png
+/dujour-desktop/customerFacing/client/public/logo128.png
+/dujour-mobile/client/public/logo192.png
+/dujour-mobile/client/public/logo128.png
+/logo128.png
+**/logo128.png
 
 # Same for build directories if they exist in multiple places
 **/build/
