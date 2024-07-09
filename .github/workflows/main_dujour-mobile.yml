@@ -3,40 +3,43 @@ name: Deploy Node-React App to Azure Web App
 on:
   push:
     branches:
-      - main  # Adjust as needed
+      - main  # Trigger on pushes to the main branch
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # Uses the latest Ubuntu virtual environment
+
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2  # Checks out the code for your repository
 
       - name: Set up Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: '18'  # Adjust as needed
+          node-version: '18'  # Specify Node.js version
+          cache: 'npm'  # Cache npm modules
 
-      - name: Install root dependencies
+      - name: Install dependencies in dujour-mobile
         run: npm install
-        working-directory: ./dujour-mobile
+        working-directory: ./dujour-mobile  # Runs npm install in the dujour-mobile directory
 
       - name: Install client dependencies
         run: npm install
-        working-directory: ./dujour-mobile/client
+        working-directory: ./dujour-mobile/client  # Runs npm install in the client subdirectory
 
       - name: Build client
         run: npm run build
-        working-directory: ./dujour-mobile/client
+        working-directory: ./dujour-mobile/client  # Runs build script in the client directory
 
       - name: Install server dependencies
         run: npm install
-        working-directory: ./dujour-mobile/server
+        working-directory: ./dujour-mobile/server  # Runs npm install in the server subdirectory
 
       - name: Zip deployment package
         run: |
-          cd ./dujour-mobile
-          zip -r deploy.zip client/build server -x "*node_modules*"
+          cd dujour-mobile
+          zip -r deploy.zip client/build server
           echo "Artifact zipped"
+        working-directory: ./  # Make sure to navigate to the root directory to execute the zip command correctly
 
       - name: Login to Azure
         uses: azure/login@v1
@@ -47,9 +50,9 @@ jobs:
         run: |
           az webapp deploy --resource-group dujour-mobile_group --name dujour-mobile --src-path ./dujour-mobile/deploy.zip
 
-      - name: Install dependencies on Azure via Kudu API
+      - name: Verify deployment
         run: |
           curl -X POST https://dujour-mobile.scm.azurewebsites.net/api/command \
-          -d '{"command": "npm install", "dir": "site\\wwwroot"}' \
+          -d '{"command": "ls -la", "dir": "site\\wwwroot"}' \
           -H 'Authorization: Bearer ${{ secrets.AZURE_SECRET }}' \
           -H 'Content-Type: application/json'

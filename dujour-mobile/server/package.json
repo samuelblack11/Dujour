@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.6",
+    "cors": "^2.8.5",
     "bcrypt": "^5.1.1",
     "dujour-shared": "^1.0.6",
     "express": "^4.19.2",
