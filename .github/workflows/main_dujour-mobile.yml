@@ -1,70 +1,73 @@
-name: Deploy Node-React App to Azure Web App
+name: Build and deploy Node.js & React app to Azure Web App - dujour-mobile
 
 on:
   push:
     branches:
-      - main  # Trigger on pushes to the main branch
+      - main
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest  # Uses the latest Ubuntu virtual environment
+  build:
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2  # Checks out the code for your repository
+      - uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Specify Node.js version
-          cache: 'npm'  # Cache npm modules
+          node-version: '18.x' # Match this with your development environment
 
-      - name: Install dependencies in dujour-mobile
-        run: npm install
-        working-directory: ./dujour-mobile  # Runs npm install in the dujour-mobile directory
-
-      - name: Install client dependencies
-        run: npm install
-        working-directory: ./dujour-mobile/client  # Runs npm install in the client subdirectory
-
-      - name: Build client
-        run: npm run build
-        working-directory: ./dujour-mobile/client  # Runs build script in the client directory
-
-      - name: Install server dependencies
-        run: npm install
-        working-directory: ./dujour-mobile/server  # Runs npm install in the server subdirectory
-
-      - name: Remove non-essential node modules
+      - name: Install and build server
         run: |
-          rm -rf ./dujour-mobile/server/node_modules/@types
-          rm -rf ./dujour-mobile/server/node_modules/*/test
-          rm -rf ./dujour-mobile/server/node_modules/*/docs
-        working-directory: ./
+          cd dujour-mobile/server
+          npm install
+          npm run build --if-present
 
-      - name: Zip deployment package
+      - name: Install and build client
         run: |
-          cd dujour-mobile
-          zip -r deploy.zip client/build server -x "*.d.ts" -x "*test*" -x "*README.md" -x "*CHANGELOG.md"
-          echo "Artifact zipped"
-        working-directory: ./
+          cd dujour-mobile/client
+          npm install
+          npm run build
 
-      - name: List and sort contents of deploy.zip by size
+      - name: Create deployment artifact
         run: |
-          unzip -l dujour-mobile/deploy.zip | awk 'NR > 3 && NF {print $1 " " $4}' | sort -nr
-        working-directory: ./
+          mkdir deployment
+          cp -R dujour-mobile/server/ deployment/server/
+          cp -R dujour-mobile/client/build/ deployment/client/
+          zip -r deployment.zip deployment
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-app
+          path: deployment.zip
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    environment:
+      name: 'production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: full-app
+
+      - name: Unzip artifact for deployment
+        run: unzip deployment.zip
 
       - name: Login to Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy to Azure using Azure CLI
-        run: |
-          az webapp deploy --resource-group dujour-mobile_group --name dujour-mobile --src-path ./dujour-mobile/deploy.zip
-
-      - name: Verify deployment
-        run: |
-          curl -X POST https://dujour-mobile.scm.azurewebsites.net/api/command \
-          -d '{"command": "ls -la", "dir": "site\\wwwroot"}' \
-          -H 'Authorization: Bearer ${{ secrets.AZURE_SECRET }}' \
-          -H 'Content-Type: application/json'
+      - name: 'Deploy to Azure Web App'
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'dujour-mobile'
+          slot-name: 'production'
+          package: deployment

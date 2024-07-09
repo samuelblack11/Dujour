@@ -45,6 +45,7 @@
     "react-webcam": "^7.2.0"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@babel/preset-env": "^7.16.4",
     "@babel/preset-react": "^7.16.0",
     "react-app-rewired": "^2.2.1",
