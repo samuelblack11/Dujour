@@ -41,6 +41,11 @@ jobs:
           echo "Artifact zipped"
         working-directory: ./  # Make sure to navigate to the root directory to execute the zip command correctly
 
+      - name: List and sort contents of deploy.zip by size
+        run: |
+          unzip -l dujour-mobile/deploy.zip | awk 'NR > 3 && NF {print $1 " " $4}' | sort -nr
+        working-directory: ./
+
       - name: Login to Azure
         uses: azure/login@v1
         with:
