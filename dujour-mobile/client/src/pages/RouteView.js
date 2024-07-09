@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import './AllPages.css';
 import { AuthContext } from '../App.js';
@@ -22,8 +22,7 @@ function RouteView() {
   //const [currentStop, setCurrentStop] = useState(null);
   //const [stopsData, setStopsData] = useState([]);
   const [combinedStops, setCombinedStops] = useState([]);
-  const [allOrdersReadyForNavigation, setAllOrdersReadyForNavigation] = useState(false);
-  //const directionsRendererRef = useRef(null);
+  //const [allOrdersReadyForNavigation, setAllOrdersReadyForNavigation] = useState(false);
   // State definitions
   const [currentLocation, setCurrentLocation] = useState(null);
   //const [selectedDestination, setSelectedDestination] = useState(null);
@@ -122,7 +121,7 @@ const handlePickupPackage = async (order) => {
   useEffect(() => {
   // Check if all orders are 'Ready for Driver Pickup'
   const areAllOrdersReady = combinedStops.every(stop => stop.orderStatus === 'Ready for Driver Pickup' || 'Out for Delivery');
-  setAllOrdersReadyForNavigation(areAllOrdersReady);
+  //setAllOrdersReadyForNavigation(areAllOrdersReady);
   }, [combinedStops]); // Dependency on combinedStops to re-evaluate when stops data changes
 
   useEffect(() => {
