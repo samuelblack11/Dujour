@@ -7,7 +7,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors());
-//Test 123456
+//Test 123
 const port = process.env.PORT || 3004;
 
 const encodedUsername = encodeURIComponent(process.env.mongoUserName);
@@ -15,6 +15,8 @@ const encodedPassword = encodeURIComponent(process.env.mongoPwd);
 
 // MongoDB connection
 const uri = `mongodb+srv://${encodedUsername}:${encodedPassword}@${process.env.mongoClusterName}.mongodb.net/Dujour?retryWrites=true&w=majority&appName=${process.env.databaseName}`;
+console.log("^^^^^^")
+console.log(uri)
 mongoose.connect(uri, { useNewUrlParser: true})
   .then(() => console.log('Connected to database...'))
   .catch(err => {
@@ -40,12 +42,6 @@ app.use('/api/pickPlans', pickPlans);
 app.get('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
 });
-
-try {
-    require('some-module');
-} catch (error) {
-    console.error('Failed to load some-module:', error);
-}
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);

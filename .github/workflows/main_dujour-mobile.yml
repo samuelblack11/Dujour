@@ -32,6 +32,14 @@ jobs:
         run: npm install
         working-directory: ./dujour-mobile/server
 
+      - name: Install client dependencies
+        run: npm install
+        working-directory: ./dujour-mobile/client
+
+      - name: Build client
+        run: npm run build
+        working-directory: ./dujour-mobile/client
+
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
 
