@@ -26,10 +26,10 @@ mongoose.connect(uri, { useNewUrlParser: true})
 app.use(express.static(path.join(__dirname, '../client/build')));
 
 // API routes
-const orderRoutes = require('../dujour-shared/routes/orders');
-const userRoutes = require('../dujour-shared/routes/users');
-const deliveryRoutes = require('../dujour-shared/routes/deliveryRoutes');
-const pickPlans = require('../dujour-shared/routes/pickPlans');
+const orderRoutes = require('dujour-shared/routes/orders');
+const userRoutes = require('dujour-shared/routes/users');
+const deliveryRoutes = require('dujour-shared/routes/deliveryRoutes');
+const pickPlans = require('dujour-shared/routes/pickPlans');
 
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
