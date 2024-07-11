@@ -14,7 +14,7 @@ const encodedUsername = encodeURIComponent(process.env.mongoUserName);
 const encodedPassword = encodeURIComponent(process.env.mongoPwd);
 
 // MongoDB connection
-const uri = `mongodb+srv://${encodedUsername}:${encodedPassword}@${process.env.mongoClusterName}.mongodb.net/Dujour?retryWrites=true&w&m ajority&appName=${process.env.databaseName}`;
+const uri = `mongodb+srv://${encodedUsername}:${encodedPassword}@${process.env.mongoClusterName}.mongodb.net/Dujour?retryWrites=true&w=majority&appName=${process.env.databaseName}`;
 mongoose.connect(uri, { useNewUrlParser: true})
   .then(() => console.log('Connected to database...'))
   .catch(err => {
