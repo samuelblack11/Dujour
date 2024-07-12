@@ -1,6 +1,5 @@
 import React from 'react';
 import GoogleMapReact from 'google-map-react';
-const config = require('../config'); 
 
 const colors = ["blue", "red", "green", "yellow", "purple", "orange", "brown", "pink", "gray", "teal"]; // Define your colors
 
