@@ -21,18 +21,18 @@ jobs:
         with:
           node-version: '18.x'
 
-      - name: Cache npm modules
-        uses: actions/cache@v2
-        with:
-          path: |
-            dujour-mobile/server/node_modules
-            dujour-mobile/client/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+      #- name: Cache npm modules
+      #  uses: actions/cache@v2
+      #  with:
+      #    path: |
+      #      dujour-mobile/server/node_modules
+      #      dujour-mobile/client/node_modules
+      #    key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+      #    restore-keys: |
+      #      ${{ runner.os }}-node-
 
       - name: npm install, build, and test
-        if: steps.cache.outputs.cache-hit != 'true' || github.event_name == 'workflow_dispatch'
+        #if: steps.cache.outputs.cache-hit != 'true' || github.event_name == 'workflow_dispatch'
         run: |
           npm cache clean --force
           npm install
@@ -40,17 +40,17 @@ jobs:
           npm run test --if-present
 
       - name: Install server dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+        #if: steps.cache.outputs.cache-hit != 'true'
         run: npm install
         working-directory: ./dujour-mobile/server
 
       - name: Install client dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
+        #if: steps.cache.outputs.cache-hit != 'true'
         run: npm install
         working-directory: ./dujour-mobile/client
 
       - name: Build client
-        if: github.event.commits[0].message != 'skip-build'
+        #if: github.event.commits[0].message != 'skip-build'
         run: npm run build
         working-directory: ./dujour-mobile/client
 
