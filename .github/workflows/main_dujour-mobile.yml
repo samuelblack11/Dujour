@@ -28,13 +28,13 @@ jobs:
           npm run build --if-present
           npm run test --if-present
 
-      - name: Install server dependencies
-        run: npm install
-        working-directory: ./dujour-mobile/server
+      #- name: Install server dependencies
+      #  run: npm install
+      #  working-directory: ./dujour-mobile/server
 
-      - name: Install client dependencies
-        run: npm install
-        working-directory: ./dujour-mobile/client
+      #- name: Install client dependencies
+      #  run: npm install
+      #  working-directory: ./dujour-mobile/client
 
       - name: Build client
         run: npm run build
