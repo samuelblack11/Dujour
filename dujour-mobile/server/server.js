@@ -34,11 +34,9 @@ const staticPath = process.env.NODE_ENV === 'production' ?
 console.log(`Serving static files from ${staticPath}`);
 app.use(express.static(staticPath));
 
-const BASE_API_PATH = process.env.BASE_API_PATH;
+const BASE_API_PATH = process.env.BASE_API_PATH || '/api';
 // Create a router for all API routes
 const apiRouter = express.Router();
-
-// API routes
 const orderRoutes = require('dujour-shared/routes/orders');
 const userRoutes = require('dujour-shared/routes/users');
 const deliveryRoutes = require('dujour-shared/routes/deliveryRoutes');
@@ -50,21 +48,18 @@ apiRouter.use('/users', userRoutes);
 apiRouter.use('/deliveryRoutes', deliveryRoutes);
 apiRouter.use('/pickPlans', pickPlans);
 
-app.use((req, res, next) => {
+{/*app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {  // "finish" event is emitted when the response has been sent
     const duration = Date.now() - start;
     console.log(`${req.method} ${req.path} ${res.statusCode} - ${duration}ms`);
   });
   next();
-});
+});*/}
 
 
 // Then mount the API router
 app.use(BASE_API_PATH, apiRouter);
-
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Catch-all handler for React app
 app.get('*', (req, res) => {
