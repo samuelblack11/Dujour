@@ -4,7 +4,7 @@
   "private": true,
   "proxy": "http://localhost:3004",
   "dependencies": {
-    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/plugin-proposal-private-property-in-object": "^7.24.7",
     "@react-google-maps/api": "^2.19.3",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",

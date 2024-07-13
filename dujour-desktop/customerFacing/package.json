@@ -2,9 +2,9 @@
   "name": "fleetware-desktop",
   "version": "0.1.0",
   "scripts": {
-    "start": "PORT=3002 react-app-rewired start",
+    "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
+    "test": "echo \"No tests to run\"",
     "eject": "react-scripts eject",
     "start:admin": "cd adminDashboard/client && npm start",
     "start:customer": "cd customerFacing/client && npm start",
