@@ -7,6 +7,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'dujour-desktop/customerFacing/**'
   workflow_dispatch:
 
 jobs:
