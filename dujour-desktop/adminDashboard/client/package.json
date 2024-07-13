@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.6.5",
     "dotenv": "^16.4.5",
+    "html2canvas": "^1.4.1",
     "moment-timezone": "^0.5.45",
     "react": "^18.2.0",
     "react-datepicker": "^6.9.0",
