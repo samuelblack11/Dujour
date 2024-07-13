@@ -73,7 +73,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy using Azure CLI
-        - run: |
-            az webapp up --name dujour-admin --resource-group dujour-mobile_group
+        run: |
+          az webapp up --name dujour-admin --resource-group dujour-mobile_group
 
           
