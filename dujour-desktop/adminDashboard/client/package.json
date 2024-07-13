@@ -4,7 +4,7 @@
   "private": true,
   "proxy": "http://localhost:3000",
   "dependencies": {
-    "@babel/plugin-transform-private-property-in-object": "^7.24.7",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -12,6 +12,7 @@
     "dotenv": "^16.4.5",
     "html2canvas": "^1.4.1",
     "moment-timezone": "^0.5.45",
+    "qrcode": "^1.5.3",
     "react": "^18.2.0",
     "react-datepicker": "^6.9.0",
     "react-dom": "^18.2.0",
