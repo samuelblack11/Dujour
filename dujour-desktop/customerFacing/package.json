@@ -13,6 +13,9 @@
     "start:server:admin": "cd adminDashboard/server && npm start",
     "start:server:customer": "cd customerFacing/server && npm start"
   },
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "@babel/plugin-transform-private-property-in-object": "^7.24.7",
     "@babel/preset-env": "^7.16.4",
