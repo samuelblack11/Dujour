@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json()); // Middleware to parse JSON bodies
 
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' ? 'https://dujour-mobile.azurewebsites.net' : '*',
+  origin: process.env.NODE_ENV === 'production' ? 'https://dujour-customer.azurewebsites.net' : '*',
 };
 app.use(cors(corsOptions));
 
