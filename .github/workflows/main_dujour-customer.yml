@@ -72,11 +72,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 'Deploy to Azure Web App'
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'dujour-customer'
-          slot-name: 'Production'
-          package: .
+      - name: Deploy using Azure CLI
+        run: |
+          az webapp up --name dujour-customer --resource-group dujour-mobile_group --src-path .
           
