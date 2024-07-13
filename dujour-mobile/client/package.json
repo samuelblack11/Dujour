@@ -1,5 +1,5 @@
 {
-  "name": "dujour-mobile",
+  "name": "dujour-mobile-client",
   "version": "0.1.0",
   "private": true,
   "proxy": "http://localhost:3004",

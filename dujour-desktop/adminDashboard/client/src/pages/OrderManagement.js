@@ -3,7 +3,6 @@ import axios from 'axios';
 import { GenericTable, GenericPopup, DetailedOrderPopup} from './ReusableReactComponents';
 import './AllPages.css';
 import { AuthContext } from '../App.js';
-import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import QRCode from 'qrcode';
 import logo from '../assets/logo128.png';
