@@ -78,4 +78,7 @@ jobs:
         run: |
           az webapp up --name dujour-admin --resource-group dujour-mobile_group
 
+      - name: Set Node.js version in Azure
+        run: az webapp config appsettings set --resource-group dujour-mobile_group --name dujour-admin --settings WEBSITE_NODE_DEFAULT_VERSION=~18
+
           

@@ -1,5 +1,5 @@
 {
-  "name": "fleetware-desktop",
+  "name": "dujour-customer",
   "version": "0.1.0",
   "scripts": {
     "start": "react-app-rewired start",

@@ -1,5 +1,5 @@
 {
-  "name": "fleetware-desktop",
+  "name": "dujour-admin",
   "version": "0.1.0",
   "scripts": {
     "start": "react-app-rewired start",
@@ -12,6 +12,9 @@
     "build:customer": "cd customerFacing/client && npm run build",
     "start:server:admin": "cd adminDashboard/server && npm start",
     "start:server:customer": "cd customerFacing/server && npm start"
+  },
+  "engines": {
+    "node": "18.x"
   },
   "dependencies": {
     "@babel/plugin-transform-private-property-in-object": "^7.24.7",
