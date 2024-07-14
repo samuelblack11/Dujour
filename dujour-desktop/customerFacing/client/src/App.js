@@ -24,13 +24,13 @@ function useAuth() {
 }
 
 function MenuBar() {
+  const { user, logout } = useContext(AuthContext);
   const { cartItems, setCartItems, addToCart, removeFromCart } = useCart();
   const [cartItemCount, setCartItemCount] = useState(0);
   const [cartDropdownVisible, setCartDropdownVisible] = useState(false);
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const cartDropdownRef = useRef(null);
   const dropdownRef = useRef(null);
-  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   // Effect to calculate the total number of items in the cart
@@ -64,7 +64,7 @@ function MenuBar() {
   }, []);
    const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   return (
@@ -88,20 +88,19 @@ function MenuBar() {
           </button>
           {dropdownVisible && (
             <div className="dropdown-menu">
-            <button>
-              <Link to="/my-account">Account Details</Link>
-            </button>
-            <button>
-              <Link to="/order-history">Order History</Link>
-            </button >
-              <button onClick={handleLogout} style={{ 
-                  color: 'white', 
-                  display: 'block', 
-                  marginLeft: 'auto', 
-                  marginRight: 'auto', 
-                  width: 'fit-content'
-                }}
-              >Logout</button>
+              {user ? (
+                <>
+                  <button>
+                    <Link to="/my-account">Account Details</Link>
+                  </button>
+                  <button>
+                    <Link to="/order-history">Order History</Link>
+                  </button>
+                  <button onClick={handleLogout} style={{ color: 'white', marginLeft: 'auto', marginRight: 'auto', width: 'fit-content' }}>Logout</button>
+                </>
+              ) : (
+                <button onClick={() => navigate('/login')} style={{ color: 'white', marginLeft: 'auto', marginRight: 'auto', width: 'fit-content' }}>Login</button>
+              )}
             </div>
           )}
         </div>
@@ -128,6 +127,7 @@ function App() {
   const login = (userData) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
+    console.log('Logged in user:', userData); // Check what's being set
   };
 
   const logout = () => {
@@ -171,14 +171,14 @@ function App() {
             </div>
             </div>
             <div className="header-content">
-              {user && <MenuBar />}
+              <MenuBar />
             </div>
           </div>
           <Routes>
+            <Route path="/" element={<LandingPage />} /> {/* Default route for authenticated users */}
+            <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
             {user ? (
               <>
-                <Route path="/" element={<LandingPage />} /> {/* Default route for authenticated users */}
-                <Route path="/landing-page" element={<LandingPage />} />
                 <Route path="/build-order" element={<BuildOrder />} />
                 <Route path="/place-order" element={<PlaceOrder />} />
                 <Route path="/order-history" element={<OrderHistory />} />
@@ -188,8 +188,7 @@ function App() {
               </>
             ) : (
               <>
-                <Route path="/" element={<Login />} />
-                <Route path="*" element={<Navigate to="/" />} />
+                <Route path="/login" element={<Login />} />
               </>
             )}
           </Routes>

@@ -5,14 +5,16 @@ import './AllPages.css';
 import { GenericTable, GenericPopup } from './ReusableReactComponents';
 
 const ItemForm = ({ item, onSave }) => {
+    const { user } = useContext(AuthContext); // Access the user context
   const [formState, setFormState] = useState({
     itemName: item ? item.itemName : '',
     unitCost: item ? item.unitCost : '',
     originalQuantity: item ? item.originalQuantity : '',
     quantityAvailable: item ? item.quantityAvailable : '',
+    farmName: user.role !== 'admin' ? user.name : '', // Autofill if not an admin
   });
-    const { user } = useContext(AuthContext); // Access the user context
 
+    const [farmId, setFarmId] = useState('');
     const getNextSaturday = (currentDate) => {
     const date = new Date(currentDate);
     const dayOfWeek = date.getDay();
@@ -29,6 +31,42 @@ const ItemForm = ({ item, onSave }) => {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
 };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log(name)
+    setFormState(prevState => ({
+         ...prevState,
+         [name]: value,
+        originalQuantity: name === 'quantityAvailable' ? value : prevState.originalQuantity
+        }));
+    //if (name === 'farmName' && user.role === 'admin') {
+    //    console.log("fetchFarmId called...")
+    //  fetchFarmId(value);
+    //}
+  };
+
+  useEffect(() => {
+    if (user.role !== 'admin') {
+      // For non-admin users, auto-set the farm on item creation
+      fetchFarmId(user.name);
+    }
+  }, [user]);
+
+const fetchFarmId = async (name) => {
+    if (!name) return null;  // Return null or appropriate default
+    try {
+        const response = await axios.get(`/api/farms/byname/${encodeURIComponent(name)}`);
+        const farm = response.data;
+        setFarmId(farm._id);  // Update state as well for future use
+        return farm._id;  // Return this for immediate use
+    } catch (error) {
+        console.error('Failed to find farm:', error);
+        setFarmId('');
+        return '';  // Return empty string or appropriate default
+    }
+};
+
+
   useEffect(() => {
     if (item) {
       setFormState({
@@ -39,24 +77,20 @@ const ItemForm = ({ item, onSave }) => {
     }
   }, [item]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormState(prevState => ({
-         ...prevState,
-         [name]: value,
-        originalQuantity: name === 'quantityAvailable' ? value : prevState.originalQuantity
-        }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const farmResponse = await axios.get(`/api/farms/byname/${encodeURIComponent(user.name)}`);
-      const farm = farmResponse.data;
 
+    let effectiveFarmId = farmId;
+    if (user.role === 'admin' && formState.farmName) {
+        effectiveFarmId = await fetchFarmId(formState.farmName) || farmId;  // Update currentFarmId if fetched
+    }
+
+    console.log("Effective FARM ID: ", effectiveFarmId);
+
+    try {
       const itemData = {
         ...formState,
-        farm: farm._id,
+        farm: effectiveFarmId, // Make sure farmId is explicitly included
         originalQuantity: formState.quantityAvailable,
         forDeliveryOn: new Date(getNextSaturday(new Date())),
         activeStatus: false
@@ -79,6 +113,12 @@ const ItemForm = ({ item, onSave }) => {
       <input id="unitCost" name="unitCost" type="number" value={formState.unitCost} onChange={handleChange} required />
       <label htmlFor="quantityAvailable">Quantity Available:</label>
       <input id="quantityAvailable" name="quantityAvailable" type="number" value={formState.quantityAvailable} onChange={handleChange} required />
+        {user.role === 'admin' && (
+        <>
+        <label htmlFor="farmName">Farm Name:</label>
+        <input id="farmName" name="farmName" type="text" value={formState.farmName} onChange={handleChange} required />
+        </>
+        )}
       <button type="submit" className="add-button">Save Item</button>
     </form>
   );
@@ -89,37 +129,58 @@ const SubmitMenu = () => {
     const [items, setItems] = useState([]);
     const [showItemPopup, setShowItemPopup] = useState(false);
     const [currentItem, setCurrentItem] = useState(null);
+    const [farms, setFarms] = useState([]);
 
     useEffect(() => {
         fetchItems();
-    }, []);
+    }, [farms]);
+
+    useEffect(() => {
+        console.log('Items state updated:', items); // Log when items state updates
+    }, [items]);
+
 
 const fetchItems = async () => {
+    console.log('Fetching items and farms...');
     try {
-        const response = await axios.get('/api/items');
-        const nextSaturday = getNextSaturday(new Date()); // Get next Saturday based on today's date
-        setItems(response.data.filter(item => {
-            // Check if the item is from the correct farm
-            const isCorrectFarm = item.farm && item.farm.name === user.name;
-            if (!isCorrectFarm) {
-                return false;
-            }
-            
-            // Check if the delivery date matches next Saturday
+        const itemsResponse = await axios.get('/api/items');
+        const farmsResponse = await axios.get('/api/farms');
+        console.log('Farms:', farmsResponse.data); // Check what farms data looks like
+        const farms = farmsResponse.data;
+
+        const farmMap = new Map(farms.map(farm => [farm._id, farm.name]));
+        console.log('Farm Map:', farmMap); // Verify farm map
+
+        const nextSaturday = getNextSaturday(new Date());
+
+        let filteredItems = itemsResponse.data.map(item => {
+            return {
+                ...item,
+                farmName: farmMap.get(item.farm._id) || 'No Farm Assigned'
+            };
+        });
+
+        console.log('Items before final filter:', filteredItems); // Check items before filtering based on role
+
+        filteredItems = filteredItems.filter(item => {
             const deliveryDate = new Date(item.forDeliveryOn);
-            // Format the date to match "MM/dd/yyyy" explicitly
             const formattedDeliveryDate = deliveryDate.toLocaleDateString('en-US', {
                 year: 'numeric', 
                 month: '2-digit', 
                 day: '2-digit'
             });
-            const isDeliveryDate = formattedDeliveryDate === nextSaturday;
-            return isDeliveryDate;
-        }));
+            const isDateMatch = formattedDeliveryDate === nextSaturday;
+            const isFarmMatch = (user.role === 'admin' || item.farmName === user.name);
+            console.log(`Item: ${item.itemName}, Date Match: ${isDateMatch}, Farm Match: ${isFarmMatch}`); // Log the check
+            return isDateMatch && isFarmMatch;
+        });
+
+        setItems(filteredItems);
     } catch (error) {
-        console.error('Failed to fetch items:', error);
+        console.error('Failed to fetch items or farms:', error);
     }
 };
+
 
 
 
@@ -149,6 +210,7 @@ const fetchItems = async () => {
         { Header: 'Original Quantity', accessor: 'originalQuantity' },
         { Header: 'Quantity Available', accessor: 'quantityAvailable' },
         { Header: 'Active', accessor: 'activeStatus', Cell: ({ row }) => row.activeStatus ? 'Yes' : 'No' },
+        ...(user.role === 'admin' ? [{ Header: 'Farm Name', accessor: 'farmName' }] : []),
         { Header: 'Actions', Cell: ({ row }) => (
         <>
             <button onClick={() => handleAddEditItem(row)} className="edit-btn" disabled={row.activeStatus}>Edit</button>

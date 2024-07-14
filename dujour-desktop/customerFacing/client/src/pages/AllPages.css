@@ -502,7 +502,7 @@ button:hover, .popup-inner .popup-ok-btn:hover, .popup-inner .popup-cancel-btn:h
 
 .landing-page .overlay-text {
   position: absolute;
-  top: 60%;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
@@ -733,3 +733,8 @@ nav {
     font-size: 16px;  /* General style for all buttons within the dropdown */
 }
 
+.promo-message {
+  color: white;
+  text-decoration: none; /* This removes underlining */
+  cursor: default; /* This changes the cursor to default when hovering over the text */
+}

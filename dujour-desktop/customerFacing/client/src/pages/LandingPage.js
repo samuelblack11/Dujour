@@ -3,6 +3,8 @@ import axios from 'axios';
 import './AllPages.css';
 import marketImage from '../assets/marketImage.png';
 import marketImage2 from '../assets/marketImage2.png';
+import berriesImage from '../assets/berries-unsplash.png';
+import veggiesImage from '../assets/veggies-unsplash.png';
 import {  Link } from 'react-router-dom';
 
 function LandingPage() {
@@ -30,8 +32,13 @@ function LandingPage() {
   return (
     <div className="landing-page">
       <div className="hero">
-        <img className = "landingPageImage" src={marketImage} alt="Farm to Consumer" />
+        <img className = "landingPageImage" src={berriesImage} alt="Farm to Consumer" />
         <div className="overlay-text">
+          <div className="promo-message">
+            <h1>Delivering to Alexandria this Fall</h1>
+          </div>
+          <br></br>
+          <br></br>
           <h1>Get Back to Your Roots</h1>
           <button className="shop-now-button">
             <Link to="/build-order">Shop Now</Link>
@@ -77,7 +84,7 @@ function LandingPage() {
         </div>
       </div>
       <div className="hero">
-        <img className = "landingPageImage" src={marketImage2} alt="Farm to Consumer" />
+        <img className = "landingPageImage" src={veggiesImage} alt="Farm to Consumer" />
         <div className="overlay-text">
           <h1>Begin buying directly from farmers in your area today</h1>
         </div>
