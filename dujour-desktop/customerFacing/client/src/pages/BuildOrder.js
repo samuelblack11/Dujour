@@ -100,7 +100,7 @@ const fetchImages = async (items) => {
             newImageSources[item.itemName] = imagePath.default;
         } catch (e) {
             console.log(`Failed to load image for ${item.itemName}:`, e);
-            newImageSources[item.itemName] = 'fallback-image-path.png'; // Provide a fallback image path if loading fails
+            newImageSources[item.itemName] = `../assets/logo128.png`; // Provide a fallback image path if loading fails
         }
     }
     setImageSources(newImageSources);
@@ -129,7 +129,7 @@ const fetchImages = async (items) => {
 
   // Inside BuildOrder component
   useEffect(() => {
-    if (user.role !== 'admin') {
+    if (user && user.role && user.role !== 'admin') {
       setOrderData(currentOrderData => ({
         ...currentOrderData,
         deliveryAddress: user.deliveryAddress || '', // Autofill from user profile
@@ -150,6 +150,11 @@ const removeItemFromCart = (itemId) => {
   };
 
   const handleAddToCart = (item) => {
+    if (!user) {
+      alert("Please log in to add items to your cart.");
+      navigate('/login');
+      return;
+    }
     addToCart(item);
   };
 

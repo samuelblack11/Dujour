@@ -58,7 +58,7 @@ const handleApiLoaded = ({ map, maps }) => {
     return (
         <div style={{ height: '400px', width: '100%', position: 'relative', overflow: 'hidden' }}>
             <GoogleMapReact
-                bootstrapURLKeys={{ key: config.googleMapsApiKey }}
+                bootstrapURLKeys={{ key: process.env.REACT_APP_GOOGLE_MAPS_API_KEY }}
                 defaultCenter={defaultProps.center}
                 defaultZoom={defaultProps.zoom}
                 onGoogleApiLoaded={handleApiLoaded}

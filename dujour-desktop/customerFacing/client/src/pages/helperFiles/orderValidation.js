@@ -8,7 +8,7 @@ export const validateEmail = (email) => {
 export const validateDeliveryAddress = (address) => {
   // Define allowed city-state pairs
   const allowedLocations = [
-    { city: "Arlington", state: "VA" }
+    { city: "Alexandria", state: "VA" }
     // Add more locations as needed
   ];
 
@@ -36,11 +36,9 @@ export const validateDeliveryAddress = (address) => {
   if (!isLocationAllowed) {
     return { isValid: false, error: "We're sorry, delivery is currently only available in the Arlington area." };
   }
-
   // If everything is correct, return isValid as true
   return { isValid: true };
 };
-
 
 
 export const validateDeliveryDate = (dateString) => {

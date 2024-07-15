@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './AllPages.css';
-import marketImage from '../assets/marketImage.png';
-import marketImage2 from '../assets/marketImage2.png';
 import berriesImage from '../assets/berries-unsplash.png';
 import veggiesImage from '../assets/veggies-unsplash.png';
 import {  Link } from 'react-router-dom';

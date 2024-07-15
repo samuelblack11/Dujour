@@ -22,7 +22,7 @@ export const AuthContext = createContext(null);
 function useAuth() {
   return useContext(AuthContext);
 }
-
+ 
 function MenuBar() {
   const { user, logout } = useContext(AuthContext);
   const { cartItems, setCartItems, addToCart, removeFromCart } = useCart();
@@ -177,12 +177,12 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} /> {/* Default route for authenticated users */}
             <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
+            <Route path="/build-order" element={<BuildOrder />} />
+            <Route path="/about-dujour" element={<AboutDujour />} />
             {user ? (
               <>
-                <Route path="/build-order" element={<BuildOrder />} />
                 <Route path="/place-order" element={<PlaceOrder />} />
                 <Route path="/order-history" element={<OrderHistory />} />
-                <Route path="/about-dujour" element={<AboutDujour />} />
                 <Route path="/my-account" element={<MyAccount />} />
                 <Route path="/order-summary" element={<OrderSummary />} />
               </>
