@@ -8,5 +8,5 @@ Dujour is an innovative supply chain management tool designed to support the del
 </p>
 <p align="center">
   <img src="/homepage.png" alt="Homepage" height="200" width="250"/>
-  <img src="/routePlan.png" alt="Route Planning" height="200" width="250"/>
+  <img src="/routePlan2.png" alt="Route Planning" height="200" width="250"/>
 </p>
