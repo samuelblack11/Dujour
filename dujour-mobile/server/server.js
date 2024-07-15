@@ -12,7 +12,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-//Test 1234567890123
+//Test 123
 const port = process.env.PORT || 3004;
 
 const encodedUsername = encodeURIComponent(process.env.mongoUserName);
@@ -37,7 +37,9 @@ app.use(express.static(staticPath));
 const BASE_API_PATH = process.env.BASE_API_PATH || '/api';
 // Create a router for all API routes
 const apiRouter = express.Router();
-const orderRoutes = require('dujour-shared/routes/orders');
+const orderRoutes = require('dujour-shared/routes/orders')({
+  googleMapsApiKey: process.env.GOOGLE_MAPS_API_KEY
+});
 const userRoutes = require('dujour-shared/routes/users');
 const deliveryRoutes = require('dujour-shared/routes/deliveryRoutes');
 const pickPlans = require('dujour-shared/routes/pickPlans');
