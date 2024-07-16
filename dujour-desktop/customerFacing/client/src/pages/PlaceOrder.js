@@ -403,8 +403,8 @@ const validateFormFields = () => {
         alert('Failed to submit the order.');
       }
     } catch (error) {
-      console.error('Failed to submit the order and send the email.', error);
-      alert('Failed to submit the order and send the email. Please try again.');
+      console.error('Failed to submit the order: ', error);
+      alert('Failed to submit the order. Please try again.');
     }
   };
 

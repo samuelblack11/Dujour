@@ -127,7 +127,6 @@ function App() {
   const login = (userData) => {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
-    console.log('Logged in user:', userData); // Check what's being set
   };
 
   const logout = () => {
