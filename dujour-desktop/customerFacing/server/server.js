@@ -12,7 +12,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 const port = process.env.PORT || 3002; // Change 3001 to your preferred port
-// Test comment 12345
+// Test comment 123
 // URL encode the password to handle special characters
 const encodedUsername = encodeURIComponent(process.env.mongoUserName);
 const encodedPassword = encodeURIComponent(process.env.mongoPwd);
