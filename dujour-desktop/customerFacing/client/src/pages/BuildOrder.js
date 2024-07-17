@@ -91,19 +91,26 @@ const fetchAvailableItems = async () => {
 
 const fetchImages = async (items) => {
     const newImageSources = {};
+    const baseUrl = process.env.REACT_APP_STORAGE_BASE_URL; // Assume the base URL is stored in an environment variable
+
     for (const item of items) {
-        const imageName = item.itemName.replace('/', '-').toLowerCase(); // Clean item name for safe file paths
-        const farmFolderName = item.farm.name.replace(/\s+/g, '-').toLowerCase(); // Convert farm name to a folder-friendly format
-        try {
-            // Dynamically import the image from the path based on the farm name and item name
-            const imagePath = await import(`../assets/farms/${farmFolderName}/${imageName}.png`);
-            newImageSources[item.itemName] = imagePath.default;
-        } catch (e) {
-            console.log(`Failed to load image for ${item.itemName}:`, e);
-            newImageSources[item.itemName] = `../assets/logo128.png`; // Provide a fallback image path if loading fails
+        // Clean and prepare the farm name and item name to be URL-friendly
+        const cleanFarmName = item.farm.name.replace(/\s+/g, '-').toLowerCase();
+        const cleanItemName = item.itemName.replace(/\s+/g, '-').toLowerCase();
+
+        // Construct the full image URL
+        const imageUrl = `${baseUrl}${cleanFarmName}:${cleanItemName}.jpg`; // Adjust extension if necessary
+        console.log(imageUrl)
+        // Check if the URL is correctly formed or not empty
+        if (imageUrl) {
+            newImageSources[item.itemName] = imageUrl;
+        } else {
+            console.log(`Image URL could not be constructed for ${item.itemName}`);
+            newImageSources[item.itemName] = '../assets/logo128.png'; // Provide a fallback image path if the URL construction fails
         }
     }
-    setImageSources(newImageSources);
+
+    setImageSources(newImageSources); // Update the state or handle the image sources as required
 };
 
   const filteredItems = availableItems.filter(item => {

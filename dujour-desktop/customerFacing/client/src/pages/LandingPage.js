@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './AllPages.css';
-import berriesImage from '../assets/berries-unsplash.png';
-import veggiesImage from '../assets/veggies-unsplash.png';
 import {  Link } from 'react-router-dom';
 
 function LandingPage() {
+const baseUrl =process.env.REACT_APP_STORAGE_BASE_URL
+const landingPageImageOne=`${baseUrl}berries-unsplash.jpg`
+const landingPageImageTwo=`${baseUrl}veggies-unsplash.jpg`
+
   const [formState, setFormState] = useState({
     name: '',
     email: '',
@@ -27,10 +29,11 @@ function LandingPage() {
       alert('Failed to send email.');
     }
   };
+  
   return (
     <div className="landing-page">
       <div className="hero">
-        <img className = "landingPageImage" src={berriesImage} alt="Farm to Consumer" />
+        <img className = "landingPageImage" src={landingPageImageOne} alt="Farm to Consumer" />
         <div className="overlay-text">
           <div className="promo-message">
             <h1>Delivering to Alexandria this Fall</h1>
@@ -82,7 +85,7 @@ function LandingPage() {
         </div>
       </div>
       <div className="hero">
-        <img className = "landingPageImage" src={veggiesImage} alt="Farm to Consumer" />
+        <img className = "landingPageImage" src={landingPageImageTwo} alt="Farm to Consumer" />
         <div className="overlay-text">
           <h1>Begin buying directly from farmers in your area today</h1>
         </div>
