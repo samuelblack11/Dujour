@@ -3,7 +3,7 @@ import { useCart } from '../../context/CartContext';
 import CartTable from '../components/CartTable';  // Ensure path is correct
 import { useNavigate } from 'react-router-dom';
 
-const CartSidebar = () => {
+const CartSidebar = ({ availableItems })  => {
   const {
     cartItems,
     totalCost,
@@ -35,8 +35,15 @@ useEffect(() => {
   };
 
 const confirmUpdate = (itemId) => {
+    const item = availableItems.find(item => item._id === itemId);
+
     const quantityStr = editQuantities[itemId];
-    const quantity = quantityStr.trim() === '' ? 0 : Number(quantityStr);  // Convert empty input to 0 or any default value
+    const quantity = quantityStr.toString().trim() === '' ? 0 : Number(quantityStr);  // Convert empty input to 0 or any default value
+
+    if (quantity > item.quantityAvailable) {
+      alert(`Sorry, there's only ${item.quantityAvailable} units available for ${item.itemName}.`);
+      return;
+    }
 
     if (!isNaN(quantity) && quantity >= 0) {
         updateCartItem(itemId, quantity);
@@ -62,6 +69,7 @@ const confirmUpdate = (itemId) => {
       <div className="table-container">
         <CartTable
           cartItems={cartItems}
+          availableItems={availableItems}
           inputQuantities={editQuantities}
           updatingItems={item => item.isUpdating}
           setInputQuantities={handleQuantityChange}

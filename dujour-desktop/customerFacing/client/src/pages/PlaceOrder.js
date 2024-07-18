@@ -243,7 +243,8 @@ const toggleUpdateItem = (itemId) => {
 
 const confirmUpdate = (itemId) => {
     const quantityStr = editQuantities[itemId];
-    const quantity = quantityStr.trim() === '' ? 0 : Number(quantityStr);  // Convert empty input to 0 or any default value
+    console.log(quantityStr, typeof quantityStr);
+    const quantity = quantityStr.toString().trim() === '' ? 0 : Number(quantityStr);  // Convert empty input to 0 or any default value
 
     if (!isNaN(quantity) && quantity >= 0) {
         updateCartItem(itemId, quantity);
@@ -329,7 +330,34 @@ const validateFormFields = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    // Check the delivery address
+
+    // Fetch latest inventory levels
+    try {
+        const response = await axios.get('/api/items');
+        const cartItemIds = cartItems.map(item => item._id);
+
+        const inventoryLevels = response.data.filter(item => cartItemIds.includes(item._id));
+
+        let allItemsAvailable = true;
+        for (let cartItem of cartItems) {
+            const inventoryItem = inventoryLevels.find(item => item._id === cartItem._id);
+            if (!inventoryItem || cartItem.quantity > inventoryItem.quantityAvailable) {
+                allItemsAvailable = false;
+                alert(`Sorry, there's only ${inventoryItem.quantityAvailable} units available for ${cartItem.itemName}.`);
+                break;  // Break out of the loop on the first failure
+            }
+        }
+
+        if (!allItemsAvailable) {
+            setIsLoading(false);
+            return;  // Stop processing the order due to inventory issues
+        }
+    } catch (error) {
+        console.error('Failed to check inventory levels: ', error);
+        alert('Failed to verify inventory levels. Please try again.');
+        setIsLoading(false);
+        return;
+    }
 
     // Run validation
     const isFormValid = validateFormFields();
@@ -424,15 +452,20 @@ const validateFormFields = () => {
         />
       <div className="cart-summary">
         <h3>Cart Summary</h3>
-          <CartTable
-            cartItems={cartItems}
-            inputQuantities={editQuantities}
-            updatingItems={item => item.isUpdating}
-            setInputQuantities={handleQuantityChange}
-            confirmUpdate={confirmUpdate}
-            toggleItemUpdate={toggleItemUpdate}
-            removeFromCart={removeFromCart}
-          />
+            {availableItems.length > 0 ? (
+                <CartTable
+                    cartItems={cartItems}
+                    availableItems={availableItems}
+                    inputQuantities={editQuantities}
+                    updatingItems={item => item.isUpdating}
+                    setInputQuantities={handleQuantityChange}
+                    confirmUpdate={confirmUpdate}
+                    toggleItemUpdate={toggleItemUpdate}
+                    removeFromCart={removeFromCart}
+                />
+            ) : (
+                <p>Loading available items...</p> // Or show a spinner here
+            )}
         <div className="promo-code-container">
           <form onSubmit={handlePromoSubmit}>
             <input type="text"

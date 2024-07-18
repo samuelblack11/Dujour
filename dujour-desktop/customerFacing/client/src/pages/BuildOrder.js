@@ -100,7 +100,6 @@ const fetchImages = async (items) => {
 
         // Construct the full image URL
         const imageUrl = `${baseUrl}${cleanFarmName}:${cleanItemName}.jpg`; // Adjust extension if necessary
-        console.log(imageUrl)
         // Check if the URL is correctly formed or not empty
         if (imageUrl) {
             newImageSources[item.itemName] = imageUrl;
@@ -156,14 +155,21 @@ const removeItemFromCart = (itemId) => {
     updateCartItem(itemId, quantity);
   };
 
-  const handleAddToCart = (item) => {
-    if (!user) {
-      alert("Please log in to add items to your cart.");
-      navigate('/login');
-      return;
-    }
+const handleAddToCart = (item) => {
+  if (!user) {
+    alert("Please log in to add items to your cart.");
+    navigate('/login');
+    return;
+  }
+  const stockItem = availableItems.find(stock => stock._id === item._id);
+  console.log(stockItem.quantityAvailable)
+  if (stockItem && item.quantity <= stockItem.quantityAvailable) {
     addToCart(item);
-  };
+  } else {
+    alert(`Sorry, there's only ${stockItem.quantityAvailable} units available of this product.`);
+  }
+};
+
 
 const handleQuantityChange = (index, quantity) => {
   const newItems = [...availableItems];
@@ -235,7 +241,7 @@ return (
       </div>
       {cartItems.length > 0 && (
         // In BuildOrder component rendering:
-        <CartSidebar />
+        <CartSidebar availableItems={availableItems}/>
       )}
     </div>
     <GenericPopup show={popupVisible} onClose={() => setPopupVisible(false)}>
